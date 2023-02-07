@@ -6,14 +6,14 @@
 #ifndef __DUMMY_BACKEND_HPP
 #define __DUMMY_BACKEND_HPP
 
-#include <alpha/Backend.hpp>
+#include <soma/Backend.hpp>
 
 using json = nlohmann::json;
 
 /**
- * Dummy implementation of an alpha Backend.
+ * Dummy implementation of an soma Backend.
  */
-class DummyResource : public alpha::Backend {
+class DummyCollector : public soma::Backend {
    
     json m_config;
 
@@ -22,33 +22,33 @@ class DummyResource : public alpha::Backend {
     /**
      * @brief Constructor.
      */
-    DummyResource(const json& config)
+    DummyCollector(const json& config)
     : m_config(config) {}
 
     /**
      * @brief Move-constructor.
      */
-    DummyResource(DummyResource&&) = default;
+    DummyCollector(DummyCollector&&) = default;
 
     /**
      * @brief Copy-constructor.
      */
-    DummyResource(const DummyResource&) = default;
+    DummyCollector(const DummyCollector&) = default;
 
     /**
      * @brief Move-assignment operator.
      */
-    DummyResource& operator=(DummyResource&&) = default;
+    DummyCollector& operator=(DummyCollector&&) = default;
 
     /**
      * @brief Copy-assignment operator.
      */
-    DummyResource& operator=(const DummyResource&) = default;
+    DummyCollector& operator=(const DummyCollector&) = default;
 
     /**
      * @brief Destructor.
      */
-    virtual ~DummyResource() = default;
+    virtual ~DummyCollector() = default;
 
     /**
      * @brief Prints Hello World.
@@ -63,37 +63,37 @@ class DummyResource : public alpha::Backend {
      *
      * @return a RequestResult containing the result.
      */
-    alpha::RequestResult<int32_t> computeSum(int32_t x, int32_t y) override;
+    soma::RequestResult<int32_t> computeSum(int32_t x, int32_t y) override;
 
     /**
-     * @brief Destroys the underlying resource.
+     * @brief Destroys the underlying collector.
      *
      * @return a RequestResult<bool> instance indicating
      * whether the database was successfully destroyed.
      */
-    alpha::RequestResult<bool> destroy() override;
+    soma::RequestResult<bool> destroy() override;
 
     /**
-     * @brief Static factory function used by the ResourceFactory to
-     * create a DummyResource.
+     * @brief Static factory function used by the CollectorFactory to
+     * create a DummyCollector.
      *
      * @param engine Thallium engine
-     * @param config JSON configuration for the resource
+     * @param config JSON configuration for the collector
      *
-     * @return a unique_ptr to a resource
+     * @return a unique_ptr to a collector
      */
-    static std::unique_ptr<alpha::Backend> create(const thallium::engine& engine, const json& config);
+    static std::unique_ptr<soma::Backend> create(const thallium::engine& engine, const json& config);
 
     /**
-     * @brief Static factory function used by the ResourceFactory to
-     * open a DummyResource.
+     * @brief Static factory function used by the CollectorFactory to
+     * open a DummyCollector.
      *
      * @param engine Thallium engine
-     * @param config JSON configuration for the resource
+     * @param config JSON configuration for the collector
      *
-     * @return a unique_ptr to a resource
+     * @return a unique_ptr to a collector
      */
-    static std::unique_ptr<alpha::Backend> open(const thallium::engine& engine, const json& config);
+    static std::unique_ptr<soma::Backend> open(const thallium::engine& engine, const json& config);
 };
 
 #endif

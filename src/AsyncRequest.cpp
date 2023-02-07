@@ -3,11 +3,11 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#include "alpha/Exception.hpp"
-#include "alpha/AsyncRequest.hpp"
+#include "soma/Exception.hpp"
+#include "soma/AsyncRequest.hpp"
 #include "AsyncRequestImpl.hpp"
 
-namespace alpha {
+namespace soma {
 
 AsyncRequest::AsyncRequest() = default;
 
@@ -47,14 +47,14 @@ AsyncRequest& AsyncRequest::operator=(AsyncRequest&& other) {
 }
 
 void AsyncRequest::wait() const {
-    if(not self) throw Exception("Invalid alpha::AsyncRequest object");
+    if(not self) throw Exception("Invalid soma::AsyncRequest object");
     if(self->m_waited) return;
     self->m_wait_callback(*self);
     self->m_waited = true;
 }
 
 bool AsyncRequest::completed() const {
-    if(not self) throw Exception("Invalid alpha::AsyncRequest object");
+    if(not self) throw Exception("Invalid soma::AsyncRequest object");
     return self->m_async_response.received();
 }
 

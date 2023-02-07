@@ -3,68 +3,68 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#include "alpha/ResourceHandle.hpp"
-#include "alpha/RequestResult.hpp"
-#include "alpha/Exception.hpp"
+#include "soma/CollectorHandle.hpp"
+#include "soma/RequestResult.hpp"
+#include "soma/Exception.hpp"
 
 #include "AsyncRequestImpl.hpp"
 #include "ClientImpl.hpp"
-#include "ResourceHandleImpl.hpp"
+#include "CollectorHandleImpl.hpp"
 
 #include <thallium/serialization/stl/string.hpp>
 #include <thallium/serialization/stl/pair.hpp>
 
-namespace alpha {
+namespace soma {
 
-ResourceHandle::ResourceHandle() = default;
+CollectorHandle::CollectorHandle() = default;
 
-ResourceHandle::ResourceHandle(const std::shared_ptr<ResourceHandleImpl>& impl)
+CollectorHandle::CollectorHandle(const std::shared_ptr<CollectorHandleImpl>& impl)
 : self(impl) {}
 
-ResourceHandle::ResourceHandle(const ResourceHandle&) = default;
+CollectorHandle::CollectorHandle(const CollectorHandle&) = default;
 
-ResourceHandle::ResourceHandle(ResourceHandle&&) = default;
+CollectorHandle::CollectorHandle(CollectorHandle&&) = default;
 
-ResourceHandle& ResourceHandle::operator=(const ResourceHandle&) = default;
+CollectorHandle& CollectorHandle::operator=(const CollectorHandle&) = default;
 
-ResourceHandle& ResourceHandle::operator=(ResourceHandle&&) = default;
+CollectorHandle& CollectorHandle::operator=(CollectorHandle&&) = default;
 
-ResourceHandle::~ResourceHandle() = default;
+CollectorHandle::~CollectorHandle() = default;
 
-ResourceHandle::operator bool() const {
+CollectorHandle::operator bool() const {
     return static_cast<bool>(self);
 }
 
-Client ResourceHandle::client() const {
+Client CollectorHandle::client() const {
     return Client(self->m_client);
 }
 
-void ResourceHandle::sayHello() const {
-    if(not self) throw Exception("Invalid alpha::ResourceHandle object");
+void CollectorHandle::sayHello() const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
     auto& rpc = self->m_client->m_say_hello;
     auto& ph  = self->m_ph;
-    auto& resource_id = self->m_resource_id;
-    rpc.on(ph)(resource_id);
+    auto& collector_id = self->m_collector_id;
+    rpc.on(ph)(collector_id);
 }
 
-void ResourceHandle::computeSum(
+void CollectorHandle::computeSum(
         int32_t x, int32_t y,
         int32_t* result,
         AsyncRequest* req) const
 {
-    if(not self) throw Exception("Invalid alpha::ResourceHandle object");
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
     auto& rpc = self->m_client->m_compute_sum;
     auto& ph  = self->m_ph;
-    auto& resource_id = self->m_resource_id;
+    auto& collector_id = self->m_collector_id;
     if(req == nullptr) { // synchronous call
-        RequestResult<int32_t> response = rpc.on(ph)(resource_id, x, y);
+        RequestResult<int32_t> response = rpc.on(ph)(collector_id, x, y);
         if(response.success()) {
             if(result) *result = response.value();
         } else {
             throw Exception(response.error());
         }
     } else { // asynchronous call
-        auto async_response = rpc.on(ph).async(resource_id, x, y);
+        auto async_response = rpc.on(ph).async(collector_id, x, y);
         auto async_request_impl =
             std::make_shared<AsyncRequestImpl>(std::move(async_response));
         async_request_impl->m_wait_callback =

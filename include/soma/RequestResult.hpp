@@ -3,12 +3,12 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#ifndef __ALPHA_REQUEST_RESULT_HPP
-#define __ALPHA_REQUEST_RESULT_HPP
+#ifndef __SOMA_REQUEST_RESULT_HPP
+#define __SOMA_REQUEST_RESULT_HPP
 
 #include <string>
 
-namespace alpha {
+namespace soma {
 
 /**
  * @brief The RequestResult object is a generic object

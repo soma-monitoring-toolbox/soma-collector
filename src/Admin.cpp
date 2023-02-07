@@ -3,9 +3,9 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#include "alpha/Admin.hpp"
-#include "alpha/Exception.hpp"
-#include "alpha/RequestResult.hpp"
+#include "soma/Admin.hpp"
+#include "soma/Exception.hpp"
+#include "soma/RequestResult.hpp"
 
 #include "AdminImpl.hpp"
 
@@ -13,7 +13,7 @@
 
 namespace tl = thallium;
 
-namespace alpha {
+namespace soma {
 
 Admin::Admin() = default;
 
@@ -38,53 +38,53 @@ Admin::operator bool() const {
     return static_cast<bool>(self);
 }
 
-UUID Admin::createResource(const std::string& address,
+UUID Admin::createCollector(const std::string& address,
                            uint16_t provider_id,
-                           const std::string& resource_type,
-                           const std::string& resource_config,
+                           const std::string& collector_type,
+                           const std::string& collector_config,
                            const std::string& token) const {
     auto endpoint  = self->m_engine.lookup(address);
     auto ph        = tl::provider_handle(endpoint, provider_id);
-    RequestResult<UUID> result = self->m_create_resource.on(ph)(token, resource_type, resource_config);
+    RequestResult<UUID> result = self->m_create_collector.on(ph)(token, collector_type, collector_config);
     if(not result.success()) {
         throw Exception(result.error());
     }
     return result.value();
 }
 
-UUID Admin::openResource(const std::string& address,
+UUID Admin::openCollector(const std::string& address,
                          uint16_t provider_id,
-                         const std::string& resource_type,
-                         const std::string& resource_config,
+                         const std::string& collector_type,
+                         const std::string& collector_config,
                          const std::string& token) const {
     auto endpoint  = self->m_engine.lookup(address);
     auto ph        = tl::provider_handle(endpoint, provider_id);
-    RequestResult<UUID> result = self->m_open_resource.on(ph)(token, resource_type, resource_config);
+    RequestResult<UUID> result = self->m_open_collector.on(ph)(token, collector_type, collector_config);
     if(not result.success()) {
         throw Exception(result.error());
     }
     return result.value();
 }
 
-void Admin::closeResource(const std::string& address,
+void Admin::closeCollector(const std::string& address,
                            uint16_t provider_id,
-                           const UUID& resource_id,
+                           const UUID& collector_id,
                            const std::string& token) const {
     auto endpoint  = self->m_engine.lookup(address);
     auto ph        = tl::provider_handle(endpoint, provider_id);
-    RequestResult<bool> result = self->m_close_resource.on(ph)(token, resource_id);
+    RequestResult<bool> result = self->m_close_collector.on(ph)(token, collector_id);
     if(not result.success()) {
         throw Exception(result.error());
     }
 }
 
-void Admin::destroyResource(const std::string& address,
+void Admin::destroyCollector(const std::string& address,
                             uint16_t provider_id,
-                            const UUID& resource_id,
+                            const UUID& collector_id,
                             const std::string& token) const {
     auto endpoint  = self->m_engine.lookup(address);
     auto ph        = tl::provider_handle(endpoint, provider_id);
-    RequestResult<bool> result = self->m_destroy_resource.on(ph)(token, resource_id);
+    RequestResult<bool> result = self->m_destroy_collector.on(ph)(token, collector_id);
     if(not result.success()) {
         throw Exception(result.error());
     }

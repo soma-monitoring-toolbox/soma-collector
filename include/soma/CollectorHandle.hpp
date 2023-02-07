@@ -3,63 +3,63 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#ifndef __ALPHA_RESOURCE_HANDLE_HPP
-#define __ALPHA_RESOURCE_HANDLE_HPP
+#ifndef __SOMA_COLLECTOR_HANDLE_HPP
+#define __SOMA_COLLECTOR_HANDLE_HPP
 
 #include <thallium.hpp>
 #include <memory>
 #include <unordered_set>
 #include <nlohmann/json.hpp>
-#include <alpha/Client.hpp>
-#include <alpha/Exception.hpp>
-#include <alpha/AsyncRequest.hpp>
+#include <soma/Client.hpp>
+#include <soma/Exception.hpp>
+#include <soma/AsyncRequest.hpp>
 
-namespace alpha {
+namespace soma {
 
 namespace tl = thallium;
 
 class Client;
-class ResourceHandleImpl;
+class CollectorHandleImpl;
 
 /**
- * @brief A ResourceHandle object is a handle for a remote resource
- * on a server. It enables invoking the resource's functionalities.
+ * @brief A CollectorHandle object is a handle for a remote collector
+ * on a server. It enables invoking the collector's functionalities.
  */
-class ResourceHandle {
+class CollectorHandle {
 
     friend class Client;
 
     public:
 
     /**
-     * @brief Constructor. The resulting ResourceHandle handle will be invalid.
+     * @brief Constructor. The resulting CollectorHandle handle will be invalid.
      */
-    ResourceHandle();
+    CollectorHandle();
 
     /**
      * @brief Copy-constructor.
      */
-    ResourceHandle(const ResourceHandle&);
+    CollectorHandle(const CollectorHandle&);
 
     /**
      * @brief Move-constructor.
      */
-    ResourceHandle(ResourceHandle&&);
+    CollectorHandle(CollectorHandle&&);
 
     /**
      * @brief Copy-assignment operator.
      */
-    ResourceHandle& operator=(const ResourceHandle&);
+    CollectorHandle& operator=(const CollectorHandle&);
 
     /**
      * @brief Move-assignment operator.
      */
-    ResourceHandle& operator=(ResourceHandle&&);
+    CollectorHandle& operator=(CollectorHandle&&);
 
     /**
      * @brief Destructor.
      */
-    ~ResourceHandle();
+    ~CollectorHandle();
 
     /**
      * @brief Returns the client this database has been opened with.
@@ -68,17 +68,17 @@ class ResourceHandle {
 
 
     /**
-     * @brief Checks if the ResourceHandle instance is valid.
+     * @brief Checks if the CollectorHandle instance is valid.
      */
     operator bool() const;
 
     /**
-     * @brief Sends an RPC to the resource to make it print a hello message.
+     * @brief Sends an RPC to the collector to make it print a hello message.
      */
     void sayHello() const;
 
     /**
-     * @brief Requests the target resource to compute the sum of two numbers.
+     * @brief Requests the target collector to compute the sum of two numbers.
      * If result is null, it will be ignored. If req is not null, this call
      * will be non-blocking and the caller is responsible for waiting on
      * the request.
@@ -96,13 +96,13 @@ class ResourceHandle {
 
     /**
      * @brief Constructor is private. Use a Client object
-     * to create a ResourceHandle instance.
+     * to create a CollectorHandle instance.
      *
      * @param impl Pointer to implementation.
      */
-    ResourceHandle(const std::shared_ptr<ResourceHandleImpl>& impl);
+    CollectorHandle(const std::shared_ptr<CollectorHandleImpl>& impl);
 
-    std::shared_ptr<ResourceHandleImpl> self;
+    std::shared_ptr<CollectorHandleImpl> self;
 };
 
 }

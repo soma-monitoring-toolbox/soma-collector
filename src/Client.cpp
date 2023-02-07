@@ -3,19 +3,19 @@
  *
  * See COPYRIGHT in top-level directory.
  */
-#include "alpha/Exception.hpp"
-#include "alpha/Client.hpp"
-#include "alpha/ResourceHandle.hpp"
-#include "alpha/RequestResult.hpp"
+#include "soma/Exception.hpp"
+#include "soma/Client.hpp"
+#include "soma/CollectorHandle.hpp"
+#include "soma/RequestResult.hpp"
 
 #include "ClientImpl.hpp"
-#include "ResourceHandleImpl.hpp"
+#include "CollectorHandleImpl.hpp"
 
 #include <thallium/serialization/stl/string.hpp>
 
 namespace tl = thallium;
 
-namespace alpha {
+namespace soma {
 
 Client::Client() = default;
 
@@ -47,24 +47,24 @@ Client::operator bool() const {
     return static_cast<bool>(self);
 }
 
-ResourceHandle Client::makeResourceHandle(
+CollectorHandle Client::makeCollectorHandle(
         const std::string& address,
         uint16_t provider_id,
-        const UUID& resource_id,
+        const UUID& collector_id,
         bool check) const {
     auto endpoint  = self->m_engine.lookup(address);
     auto ph        = tl::provider_handle(endpoint, provider_id);
     RequestResult<bool> result;
     result.success() = true;
     if(check) {
-        result = self->m_check_resource.on(ph)(resource_id);
+        result = self->m_check_collector.on(ph)(collector_id);
     }
     if(result.success()) {
-        auto resource_impl = std::make_shared<ResourceHandleImpl>(self, std::move(ph), resource_id);
-        return ResourceHandle(resource_impl);
+        auto collector_impl = std::make_shared<CollectorHandleImpl>(self, std::move(ph), collector_id);
+        return CollectorHandle(collector_impl);
     } else {
         throw Exception(result.error());
-        return ResourceHandle(nullptr);
+        return CollectorHandle(nullptr);
     }
 }
 

@@ -1,0 +1,17 @@
+#
+# soma-config.cmake.in
+#
+
+set(SOMA_VERSION @SOMA_VERSION@)
+
+@PACKAGE_INIT@
+
+set_and_check(SOMA_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+check_required_components(soma)
+
+#include (CMakeFindDependencyMacro)
+#find_dependency (PkgConfig)
+#pkg_check_modules (margo REQUIRED margo)
+
+include ("${CMAKE_CURRENT_LIST_DIR}/soma-targets.cmake")

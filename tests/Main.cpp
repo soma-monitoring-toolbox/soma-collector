@@ -10,14 +10,14 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <spdlog/spdlog.h>
 
-#include <alpha/Client.hpp>
-#include <alpha/Admin.hpp>
-#include <alpha/Provider.hpp>
+#include <soma/Client.hpp>
+#include <soma/Admin.hpp>
+#include <soma/Provider.hpp>
 
 namespace tl = thallium;
 
 tl::engine engine;
-std::string resource_type = "dummy";
+std::string collector_type = "dummy";
 
 int main(int argc, char** argv) {
 
@@ -42,14 +42,14 @@ int main(int argc, char** argv) {
         runner.setOutputter(new CppUnit::XmlOutputter(&runner.result(), std::cerr));
     }
     if(argc >= 3) {
-        resource_type = argv[2];
+        collector_type = argv[2];
     }
 
     // Initialize the thallium server
     engine = tl::engine("na+sm", THALLIUM_SERVER_MODE);
 
     // Initialize the Sonata provider
-    alpha::Provider provider(engine);
+    soma::Provider provider(engine);
 
     // Run the tests.
     bool wasSucessful = runner.run();

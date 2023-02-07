@@ -3,11 +3,11 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#ifndef __ALPHA_PROVIDER_IMPL_H
-#define __ALPHA_PROVIDER_IMPL_H
+#ifndef __SOMA_PROVIDER_IMPL_H
+#define __SOMA_PROVIDER_IMPL_H
 
-#include "alpha/Backend.hpp"
-#include "alpha/UUID.hpp"
+#include "soma/Backend.hpp"
+#include "soma/UUID.hpp"
 
 #include <thallium.hpp>
 #include <thallium/serialization/stl/string.hpp>
@@ -18,22 +18,22 @@
 
 #include <tuple>
 
-#define FIND_RESOURCE(__var__) \
+#define FIND_COLLECTOR(__var__) \
         std::shared_ptr<Backend> __var__;\
         do {\
             std::lock_guard<tl::mutex> lock(m_backends_mtx);\
-            auto it = m_backends.find(resource_id);\
+            auto it = m_backends.find(collector_id);\
             if(it == m_backends.end()) {\
                 result.success() = false;\
-                result.error() = "Resource with UUID "s + resource_id.to_string() + " not found";\
+                result.error() = "Collector with UUID "s + collector_id.to_string() + " not found";\
                 req.respond(result);\
-                spdlog::error("[provider:{}] Resource {} not found", id(), resource_id.to_string());\
+                spdlog::error("[provider:{}] Collector {} not found", id(), collector_id.to_string());\
                 return;\
             }\
             __var__ = it->second;\
         }while(0)
 
-namespace alpha {
+namespace soma {
 
 using namespace std::string_literals;
 namespace tl = thallium;
@@ -49,12 +49,12 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     std::string          m_token;
     tl::pool             m_pool;
     // Admin RPC
-    tl::remote_procedure m_create_resource;
-    tl::remote_procedure m_open_resource;
-    tl::remote_procedure m_close_resource;
-    tl::remote_procedure m_destroy_resource;
+    tl::remote_procedure m_create_collector;
+    tl::remote_procedure m_open_collector;
+    tl::remote_procedure m_close_collector;
+    tl::remote_procedure m_destroy_collector;
     // Client RPC
-    tl::remote_procedure m_check_resource;
+    tl::remote_procedure m_check_collector;
     tl::remote_procedure m_say_hello;
     tl::remote_procedure m_compute_sum;
     // Backends
@@ -64,39 +64,39 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     ProviderImpl(const tl::engine& engine, uint16_t provider_id, const tl::pool& pool)
     : tl::provider<ProviderImpl>(engine, provider_id)
     , m_pool(pool)
-    , m_create_resource(define("alpha_create_resource", &ProviderImpl::createResource, pool))
-    , m_open_resource(define("alpha_open_resource", &ProviderImpl::openResource, pool))
-    , m_close_resource(define("alpha_close_resource", &ProviderImpl::closeResource, pool))
-    , m_destroy_resource(define("alpha_destroy_resource", &ProviderImpl::destroyResource, pool))
-    , m_check_resource(define("alpha_check_resource", &ProviderImpl::checkResource, pool))
-    , m_say_hello(define("alpha_say_hello", &ProviderImpl::sayHello, pool))
-    , m_compute_sum(define("alpha_compute_sum",  &ProviderImpl::computeSum, pool))
+    , m_create_collector(define("soma_create_collector", &ProviderImpl::createCollector, pool))
+    , m_open_collector(define("soma_open_collector", &ProviderImpl::openCollector, pool))
+    , m_close_collector(define("soma_close_collector", &ProviderImpl::closeCollector, pool))
+    , m_destroy_collector(define("soma_destroy_collector", &ProviderImpl::destroyCollector, pool))
+    , m_check_collector(define("soma_check_collector", &ProviderImpl::checkCollector, pool))
+    , m_say_hello(define("soma_say_hello", &ProviderImpl::sayHello, pool))
+    , m_compute_sum(define("soma_compute_sum",  &ProviderImpl::computeSum, pool))
     {
         spdlog::trace("[provider:{0}] Registered provider with id {0}", id());
     }
 
     ~ProviderImpl() {
         spdlog::trace("[provider:{}] Deregistering provider", id());
-        m_create_resource.deregister();
-        m_open_resource.deregister();
-        m_close_resource.deregister();
-        m_destroy_resource.deregister();
-        m_check_resource.deregister();
+        m_create_collector.deregister();
+        m_open_collector.deregister();
+        m_close_collector.deregister();
+        m_destroy_collector.deregister();
+        m_check_collector.deregister();
         m_say_hello.deregister();
         m_compute_sum.deregister();
         spdlog::trace("[provider:{}]    => done!", id());
     }
 
-    void createResource(const tl::request& req,
+    void createCollector(const tl::request& req,
                         const std::string& token,
-                        const std::string& resource_type,
-                        const std::string& resource_config) {
+                        const std::string& collector_type,
+                        const std::string& collector_config) {
 
-        spdlog::trace("[provider:{}] Received createResource request", id());
-        spdlog::trace("[provider:{}]    => type = {}", id(), resource_type);
-        spdlog::trace("[provider:{}]    => config = {}", id(), resource_config);
+        spdlog::trace("[provider:{}] Received createCollector request", id());
+        spdlog::trace("[provider:{}]    => type = {}", id(), collector_type);
+        spdlog::trace("[provider:{}]    => config = {}", id(), collector_config);
 
-        auto resource_id = UUID::generate();
+        auto collector_id = UUID::generate();
         RequestResult<UUID> result;
 
         if(m_token.size() > 0 && m_token != token) {
@@ -109,24 +109,24 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
 
         json json_config;
         try {
-            json_config = json::parse(resource_config);
+            json_config = json::parse(collector_config);
         } catch(json::parse_error& e) {
             result.error() = e.what();
             result.success() = false;
-            spdlog::error("[provider:{}] Could not parse resource configuration for resource {}",
-                    id(), resource_id.to_string());
+            spdlog::error("[provider:{}] Could not parse collector configuration for collector {}",
+                    id(), collector_id.to_string());
             req.respond(result);
             return;
         }
 
         std::unique_ptr<Backend> backend;
         try {
-            backend = ResourceFactory::createResource(resource_type, get_engine(), json_config);
+            backend = CollectorFactory::createCollector(collector_type, get_engine(), json_config);
         } catch(const std::exception& ex) {
             result.success() = false;
             result.error() = ex.what();
-            spdlog::error("[provider:{}] Error when creating resource {} of type {}:",
-                    id(), resource_id.to_string(), resource_type);
+            spdlog::error("[provider:{}] Error when creating collector {} of type {}:",
+                    id(), collector_id.to_string(), collector_type);
             spdlog::error("[provider:{}]    => {}", id(), result.error());
             req.respond(result);
             return;
@@ -134,32 +134,32 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
 
         if(not backend) {
             result.success() = false;
-            result.error() = "Unknown resource type "s + resource_type;
-            spdlog::error("[provider:{}] Unknown resource type {} for resource {}",
-                    id(), resource_type, resource_id.to_string());
+            result.error() = "Unknown collector type "s + collector_type;
+            spdlog::error("[provider:{}] Unknown collector type {} for collector {}",
+                    id(), collector_type, collector_id.to_string());
             req.respond(result);
             return;
         } else {
             std::lock_guard<tl::mutex> lock(m_backends_mtx);
-            m_backends[resource_id] = std::move(backend);
-            result.value() = resource_id;
+            m_backends[collector_id] = std::move(backend);
+            result.value() = collector_id;
         }
         
         req.respond(result);
-        spdlog::trace("[provider:{}] Successfully created resource {} of type {}",
-                id(), resource_id.to_string(), resource_type);
+        spdlog::trace("[provider:{}] Successfully created collector {} of type {}",
+                id(), collector_id.to_string(), collector_type);
     }
 
-    void openResource(const tl::request& req,
+    void openCollector(const tl::request& req,
                       const std::string& token,
-                      const std::string& resource_type,
-                      const std::string& resource_config) {
+                      const std::string& collector_type,
+                      const std::string& collector_config) {
 
-        spdlog::trace("[provider:{}] Received openResource request", id());
-        spdlog::trace("[provider:{}]    => type = {}", id(), resource_type);
-        spdlog::trace("[provider:{}]    => config = {}", id(), resource_config);
+        spdlog::trace("[provider:{}] Received openCollector request", id());
+        spdlog::trace("[provider:{}]    => type = {}", id(), collector_type);
+        spdlog::trace("[provider:{}]    => config = {}", id(), collector_config);
 
-        auto resource_id = UUID::generate();
+        auto collector_id = UUID::generate();
         RequestResult<UUID> result;
 
         if(m_token.size() > 0 && m_token != token) {
@@ -172,24 +172,24 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
 
         json json_config;
         try {
-            json_config = json::parse(resource_config);
+            json_config = json::parse(collector_config);
         } catch(json::parse_error& e) {
             result.error() = e.what();
             result.success() = false;
-            spdlog::error("[provider:{}] Could not parse resource configuration for resource {}",
-                    id(), resource_id.to_string());
+            spdlog::error("[provider:{}] Could not parse collector configuration for collector {}",
+                    id(), collector_id.to_string());
             req.respond(result);
             return;
         }
 
         std::unique_ptr<Backend> backend;
         try {
-            backend = ResourceFactory::openResource(resource_type, get_engine(), json_config);
+            backend = CollectorFactory::openCollector(collector_type, get_engine(), json_config);
         } catch(const std::exception& ex) {
             result.success() = false;
             result.error() = ex.what();
-            spdlog::error("[provider:{}] Error when opening resource {} of type {}:",
-                    id(), resource_id.to_string(), resource_type);
+            spdlog::error("[provider:{}] Error when opening collector {} of type {}:",
+                    id(), collector_id.to_string(), collector_type);
             spdlog::error("[provider:{}]    => {}", id(), result.error());
             req.respond(result);
             return;
@@ -197,27 +197,27 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
 
         if(not backend) {
             result.success() = false;
-            result.error() = "Unknown resource type "s + resource_type;
-            spdlog::error("[provider:{}] Unknown resource type {} for resource {}",
-                    id(), resource_type, resource_id.to_string());
+            result.error() = "Unknown collector type "s + collector_type;
+            spdlog::error("[provider:{}] Unknown collector type {} for collector {}",
+                    id(), collector_type, collector_id.to_string());
             req.respond(result);
             return;
         } else {
             std::lock_guard<tl::mutex> lock(m_backends_mtx);
-            m_backends[resource_id] = std::move(backend);
-            result.value() = resource_id;
+            m_backends[collector_id] = std::move(backend);
+            result.value() = collector_id;
         }
         
         req.respond(result);
-        spdlog::trace("[provider:{}] Successfully created resource {} of type {}",
-                id(), resource_id.to_string(), resource_type);
+        spdlog::trace("[provider:{}] Successfully created collector {} of type {}",
+                id(), collector_id.to_string(), collector_type);
     }
 
-    void closeResource(const tl::request& req,
+    void closeCollector(const tl::request& req,
                         const std::string& token,
-                        const UUID& resource_id) {
-        spdlog::trace("[provider:{}] Received closeResource request for resource {}",
-                id(), resource_id.to_string());
+                        const UUID& collector_id) {
+        spdlog::trace("[provider:{}] Received closeCollector request for collector {}",
+                id(), collector_id.to_string());
 
         RequestResult<bool> result;
 
@@ -232,25 +232,25 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         {
             std::lock_guard<tl::mutex> lock(m_backends_mtx);
 
-            if(m_backends.count(resource_id) == 0) {
+            if(m_backends.count(collector_id) == 0) {
                 result.success() = false;
-                result.error() = "Resource "s + resource_id.to_string() + " not found";
+                result.error() = "Collector "s + collector_id.to_string() + " not found";
                 req.respond(result);
-                spdlog::error("[provider:{}] Resource {} not found", id(), resource_id.to_string());
+                spdlog::error("[provider:{}] Collector {} not found", id(), collector_id.to_string());
                 return;
             }
 
-            m_backends.erase(resource_id);
+            m_backends.erase(collector_id);
         }
         req.respond(result);
-        spdlog::trace("[provider:{}] Resource {} successfully closed", id(), resource_id.to_string());
+        spdlog::trace("[provider:{}] Collector {} successfully closed", id(), collector_id.to_string());
     }
     
-    void destroyResource(const tl::request& req,
+    void destroyCollector(const tl::request& req,
                          const std::string& token,
-                         const UUID& resource_id) {
+                         const UUID& collector_id) {
         RequestResult<bool> result;
-        spdlog::trace("[provider:{}] Received destroyResource request for resource {}", id(), resource_id.to_string());
+        spdlog::trace("[provider:{}] Received destroyCollector request for collector {}", id(), collector_id.to_string());
 
         if(m_token.size() > 0 && m_token != token) {
             result.success() = false;
@@ -263,50 +263,50 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         {
             std::lock_guard<tl::mutex> lock(m_backends_mtx);
 
-            if(m_backends.count(resource_id) == 0) {
+            if(m_backends.count(collector_id) == 0) {
                 result.success() = false;
-                result.error() = "Resource "s + resource_id.to_string() + " not found";
+                result.error() = "Collector "s + collector_id.to_string() + " not found";
                 req.respond(result);
-                spdlog::error("[provider:{}] Resource {} not found", id(), resource_id.to_string());
+                spdlog::error("[provider:{}] Collector {} not found", id(), collector_id.to_string());
                 return;
             }
 
-            result = m_backends[resource_id]->destroy();
-            m_backends.erase(resource_id);
+            result = m_backends[collector_id]->destroy();
+            m_backends.erase(collector_id);
         }
 
         req.respond(result);
-        spdlog::trace("[provider:{}] Resource {} successfully destroyed", id(), resource_id.to_string());
+        spdlog::trace("[provider:{}] Collector {} successfully destroyed", id(), collector_id.to_string());
     }
 
-    void checkResource(const tl::request& req,
-                       const UUID& resource_id) {
-        spdlog::trace("[provider:{}] Received checkResource request for resource {}", id(), resource_id.to_string());
+    void checkCollector(const tl::request& req,
+                       const UUID& collector_id) {
+        spdlog::trace("[provider:{}] Received checkCollector request for collector {}", id(), collector_id.to_string());
         RequestResult<bool> result;
-        FIND_RESOURCE(resource);
+        FIND_COLLECTOR(collector);
         result.success() = true;
         req.respond(result);
-        spdlog::trace("[provider:{}] Code successfully executed on resource {}", id(), resource_id.to_string());
+        spdlog::trace("[provider:{}] Code successfully executed on collector {}", id(), collector_id.to_string());
     }
 
     void sayHello(const tl::request& req,
-                  const UUID& resource_id) {
-        spdlog::trace("[provider:{}] Received sayHello request for resource {}", id(), resource_id.to_string());
+                  const UUID& collector_id) {
+        spdlog::trace("[provider:{}] Received sayHello request for collector {}", id(), collector_id.to_string());
         RequestResult<bool> result;
-        FIND_RESOURCE(resource);
-        resource->sayHello();
-        spdlog::trace("[provider:{}] Successfully executed sayHello on resource {}", id(), resource_id.to_string());
+        FIND_COLLECTOR(collector);
+        collector->sayHello();
+        spdlog::trace("[provider:{}] Successfully executed sayHello on collector {}", id(), collector_id.to_string());
     }
 
     void computeSum(const tl::request& req,
-                    const UUID& resource_id,
+                    const UUID& collector_id,
                     int32_t x, int32_t y) {
-        spdlog::trace("[provider:{}] Received sayHello request for resource {}", id(), resource_id.to_string());
+        spdlog::trace("[provider:{}] Received sayHello request for collector {}", id(), collector_id.to_string());
         RequestResult<int32_t> result;
-        FIND_RESOURCE(resource);
-        result = resource->computeSum(x, y);
+        FIND_COLLECTOR(collector);
+        result = collector->computeSum(x, y);
         req.respond(result);
-        spdlog::trace("[provider:{}] Successfully executed computeSum on resource {}", id(), resource_id.to_string());
+        spdlog::trace("[provider:{}] Successfully executed computeSum on collector {}", id(), collector_id.to_string());
     }
 
 };

@@ -3,13 +3,13 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#ifndef __ALPHA_EXCEPTION_HPP
-#define __ALPHA_EXCEPTION_HPP
+#ifndef __SOMA_EXCEPTION_HPP
+#define __SOMA_EXCEPTION_HPP
 
 #include <exception>
 #include <string>
 
-namespace alpha {
+namespace soma {
 
 class Exception : public std::exception {
 

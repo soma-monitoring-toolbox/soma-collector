@@ -3,13 +3,13 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#ifndef __ALPHA_PROVIDER_HPP
-#define __ALPHA_PROVIDER_HPP
+#ifndef __SOMA_PROVIDER_HPP
+#define __SOMA_PROVIDER_HPP
 
 #include <thallium.hpp>
 #include <memory>
 
-namespace alpha {
+namespace soma {
 
 namespace tl = thallium;
 
@@ -17,7 +17,7 @@ class ProviderImpl;
 
 /**
  * @brief A Provider is an object that can receive RPCs
- * and dispatch them to specific resources.
+ * and dispatch them to specific collectors.
  */
 class Provider {
 

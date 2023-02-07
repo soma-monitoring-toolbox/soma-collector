@@ -3,48 +3,48 @@
  * 
  * See COPYRIGHT in top-level directory.
  */
-#include <alpha/Admin.hpp>
+#include <soma/Admin.hpp>
 #include <cppunit/extensions/HelperMacros.h>
 
 extern thallium::engine engine;
-extern std::string resource_type;
+extern std::string collector_type;
 
 class AdminTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( AdminTest );
-    CPPUNIT_TEST( testAdminCreateResource );
+    CPPUNIT_TEST( testAdminCreateCollector );
     CPPUNIT_TEST_SUITE_END();
 
-    static constexpr const char* resource_config = "{ \"path\" : \"mydb\" }";
+    static constexpr const char* collector_config = "{ \"path\" : \"mydb\" }";
 
     public:
 
     void setUp() {}
     void tearDown() {}
 
-    void testAdminCreateResource() {
-        alpha::Admin admin(engine);
+    void testAdminCreateCollector() {
+        soma::Admin admin(engine);
         std::string addr = engine.self();
 
-        alpha::UUID resource_id;
-        // Create a valid Resource
-        CPPUNIT_ASSERT_NO_THROW_MESSAGE("admin.createResource should return a valid Resource",
-                resource_id = admin.createResource(addr, 0, resource_type, resource_config));
+        soma::UUID collector_id;
+        // Create a valid Collector
+        CPPUNIT_ASSERT_NO_THROW_MESSAGE("admin.createCollector should return a valid Collector",
+                collector_id = admin.createCollector(addr, 0, collector_type, collector_config));
 
-        // Create a Resource with a wrong backend type
-        alpha::UUID bad_id;
-        CPPUNIT_ASSERT_THROW_MESSAGE("admin.createResource should throw an exception (wrong backend)",
-                bad_id = admin.createResource(addr, 0, "blabla", resource_config),
-                alpha::Exception);
+        // Create a Collector with a wrong backend type
+        soma::UUID bad_id;
+        CPPUNIT_ASSERT_THROW_MESSAGE("admin.createCollector should throw an exception (wrong backend)",
+                bad_id = admin.createCollector(addr, 0, "blabla", collector_config),
+                soma::Exception);
 
-        // Destroy the Resource
-        CPPUNIT_ASSERT_NO_THROW_MESSAGE("admin.destroyResource should not throw on valid Resource",
-            admin.destroyResource(addr, 0, resource_id));
+        // Destroy the Collector
+        CPPUNIT_ASSERT_NO_THROW_MESSAGE("admin.destroyCollector should not throw on valid Collector",
+            admin.destroyCollector(addr, 0, collector_id));
 
-        // Destroy an invalid Resource
-        CPPUNIT_ASSERT_THROW_MESSAGE("admin.destroyResource should throw on invalid Resource",
-            admin.destroyResource(addr, 0, bad_id),
-            alpha::Exception);
+        // Destroy an invalid Collector
+        CPPUNIT_ASSERT_THROW_MESSAGE("admin.destroyCollector should throw on invalid Collector",
+            admin.destroyCollector(addr, 0, bad_id),
+            soma::Exception);
     }
 };
 CPPUNIT_TEST_SUITE_REGISTRATION( AdminTest );
