@@ -1,2 +1,2 @@
-# soma-collector
-soma-collector is the component exposing the core SOMA measurement API
+Your project "soma" has been setup!
+ Enjoy programming with Mochi!
