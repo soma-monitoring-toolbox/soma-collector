@@ -14,6 +14,8 @@
 #include <thallium/serialization/stl/string.hpp>
 #include <thallium/serialization/stl/pair.hpp>
 
+#include <conduit.hpp>
+
 namespace soma {
 
 CollectorHandle::CollectorHandle() = default;
@@ -45,6 +47,18 @@ void CollectorHandle::sayHello() const {
     auto& ph  = self->m_ph;
     auto& collector_id = self->m_collector_id;
     rpc.on(ph)(collector_id);
+}
+
+// Soma Publish API call
+void CollectorHandle::soma_publish(conduit::Node node) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    auto& rpc = self->m_client->m_soma_publish;
+    auto& ph  = self->m_ph;
+    auto& collector_id = self->m_collector_id;
+    RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_json"));
+    if(not result.success()) {
+        throw Exception(result.error());
+    }
 }
 
 void CollectorHandle::computeSum(

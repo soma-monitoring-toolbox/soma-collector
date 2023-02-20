@@ -12,6 +12,18 @@ void DummyCollector::sayHello() {
     std::cout << "Hello World" << std::endl;
 }
 
+soma::RequestResult<bool> DummyCollector::soma_publish(std::string node) {
+    conduit::Node n;
+    n.parse(node,"conduit_json");
+
+    std::cout << "Soma Publish" << std::endl;
+    std::cout << node << std::endl;
+
+    soma::RequestResult<bool> result;
+    result.value() = true;
+    return result;
+}
+
 soma::RequestResult<int32_t> DummyCollector::computeSum(int32_t x, int32_t y) {
     soma::RequestResult<int32_t> result;
     result.value() = x + y;

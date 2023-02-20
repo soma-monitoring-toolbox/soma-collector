@@ -14,6 +14,8 @@
 #include <soma/Exception.hpp>
 #include <soma/AsyncRequest.hpp>
 
+#include <conduit/conduit.hpp>
+
 namespace soma {
 
 namespace tl = thallium;
@@ -76,6 +78,13 @@ class CollectorHandle {
      * @brief Sends an RPC to the collector to make it print a hello message.
      */
     void sayHello() const;
+
+    /**
+     * @brief Requests the publishing of conduit Node
+     *
+     * @param[in] node conduit::Node
+     */
+    void soma_publish(conduit::Node node) const;
 
     /**
      * @brief Requests the target collector to compute the sum of two numbers.

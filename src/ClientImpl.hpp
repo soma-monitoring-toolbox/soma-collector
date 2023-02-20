@@ -24,11 +24,15 @@ class ClientImpl {
     tl::remote_procedure m_say_hello;
     tl::remote_procedure m_compute_sum;
 
+    // SOMA API Calls
+    tl::remote_procedure m_soma_publish;
+
     ClientImpl(const tl::engine& engine)
     : m_engine(engine)
     , m_check_collector(m_engine.define("soma_check_collector"))
     , m_say_hello(m_engine.define("soma_say_hello").disable_response())
     , m_compute_sum(m_engine.define("soma_compute_sum"))
+    , m_soma_publish(m_engine.define("soma_publish"))
     {}
 
     ClientImpl(margo_instance_id mid)

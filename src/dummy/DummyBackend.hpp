@@ -56,6 +56,11 @@ class DummyCollector : public soma::Backend {
     void sayHello() override;
 
     /**
+     * @brief Publishes a conduit node.
+     */
+    soma::RequestResult<bool> soma_publish(std::string node) override;
+
+    /**
      * @brief Compute the sum of two integers.
      *
      * @param x first integer

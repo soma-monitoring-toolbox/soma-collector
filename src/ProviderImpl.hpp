@@ -298,6 +298,16 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         spdlog::trace("[provider:{}] Successfully executed sayHello on collector {}", id(), collector_id.to_string());
     }
 
+    // Soma Publish API call
+    void soma_publish(const tl::request& req,
+                     const UUID& collector_id,
+                     std::string node) {
+        RequestResult<bool> result;
+        FIND_COLLECTOR(collector);
+        result = collector->soma_publish(bp_mesh);
+        req.respond(result);
+    }
+
     void computeSum(const tl::request& req,
                     const UUID& collector_id,
                     int32_t x, int32_t y) {

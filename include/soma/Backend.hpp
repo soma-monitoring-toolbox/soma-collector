@@ -73,6 +73,11 @@ class Backend {
     virtual void sayHello() = 0;
 
     /**
+     * @brief Publishes a conduit node.
+     */
+    virtual soma::RequestResult<bool> soma_publish(std::string node) = 0;
+
+    /**
      * @brief Compute the sum of two integers.
      *
      * @param x first integer

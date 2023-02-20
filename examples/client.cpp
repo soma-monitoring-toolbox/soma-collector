@@ -8,7 +8,10 @@
 #include <tclap/CmdLine.h>
 #include <iostream>
 
+#include <conduit.hpp>
+
 namespace tl = thallium;
+using namespace conduit;
 
 static std::string g_address;
 static std::string g_protocol;
@@ -37,8 +40,14 @@ int main(int argc, char** argv) {
 
         collector.sayHello();
 
+        // Test compute sum
         int32_t result;
         collector.computeSum(32, 54, &result);
+
+        // Test Conduit Node
+        Node n;
+        n["test"] = "test_value";
+        collector.ams_publish(n);
 
     } catch(const soma::Exception& ex) {
         std::cerr << ex.what() << std::endl;
