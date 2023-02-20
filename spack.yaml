@@ -10,6 +10,7 @@ spack:
   - cppunit
   - tclap
   - mochi-bedrock
+  - conduit@develop
   concretizer:
     unify: true
     reuse: false

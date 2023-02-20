@@ -13,8 +13,8 @@ void DummyCollector::sayHello() {
 }
 
 soma::RequestResult<bool> DummyCollector::soma_publish(std::string node) {
-    conduit::Node n;
-    n.parse(node,"conduit_json");
+    //conduit::Node n;
+    //n.parse(node,"conduit_json");
 
     std::cout << "Soma Publish" << std::endl;
     std::cout << node << std::endl;

@@ -304,7 +304,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
                      std::string node) {
         RequestResult<bool> result;
         FIND_COLLECTOR(collector);
-        result = collector->soma_publish(bp_mesh);
+        result = collector->soma_publish(node);
         req.respond(result);
     }
 
