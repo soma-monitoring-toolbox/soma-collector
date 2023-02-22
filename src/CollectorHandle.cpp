@@ -14,7 +14,7 @@
 #include <thallium/serialization/stl/string.hpp>
 #include <thallium/serialization/stl/pair.hpp>
 
-#include <conduit.hpp>
+#include <conduit/conduit.hpp>
 
 namespace soma {
 
@@ -55,7 +55,8 @@ void CollectorHandle::soma_publish(conduit::Node node) const {
     auto& rpc = self->m_client->m_soma_publish;
     auto& ph  = self->m_ph;
     auto& collector_id = self->m_collector_id;
-    RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_json"));
+    // RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_json"));
+    RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_yaml());
     if(not result.success()) {
         throw Exception(result.error());
     }
