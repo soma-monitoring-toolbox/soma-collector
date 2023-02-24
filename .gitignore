@@ -1,4 +1,4 @@
-/build/
+*/build/
 /.spack-env/
 /spack.lock
 /cmake-build-debug/
