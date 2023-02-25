@@ -18,3 +18,5 @@ spack:
     prefix_inspections:
       lib: [LD_LIBRARY_PATH]
       lib64: [LD_LIBRARY_PATH]
+  repos:
+  - /users/dewiy/mochi-spack-packages
