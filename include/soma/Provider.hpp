@@ -8,6 +8,7 @@
 
 #include <thallium.hpp>
 #include <memory>
+#include <mpi.h>
 
 namespace soma {
 
@@ -49,6 +50,20 @@ class Provider {
              const std::string& config = "",
              const tl::pool& pool = tl::pool());
 
+    /**
+     * @brief Constructor.
+     *
+     * @param engine Thallium engine to use to receive RPCs.
+     * @param provider_id Provider id.
+     * @param config JSON-formatted configuration.
+     * @param pool Argobots pool to use to handle RPCs.
+     * @param comm MPI_COMMUNICATOR that this provider uses.
+     */
+    Provider(const tl::engine& engine,
+             uint16_t provider_id = 0,
+             MPI_Comm comm = MPI_COMM_WORLD,
+             const std::string& config = "",
+             const tl::pool& pool = tl::pool());
     /**
      * @brief Copy-constructor is deleted.
      */

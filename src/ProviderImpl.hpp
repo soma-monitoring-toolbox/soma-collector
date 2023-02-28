@@ -17,6 +17,7 @@
 #include <spdlog/spdlog.h>
 
 #include <tuple>
+#include <mpi.h>
 
 #define FIND_COLLECTOR(__var__) \
         std::shared_ptr<Backend> __var__;\
@@ -48,6 +49,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
 
     std::string          m_token;
     tl::pool             m_pool;
+    MPI_Comm		 m_comm;
     // Admin RPC
     tl::remote_procedure m_create_collector;
     tl::remote_procedure m_open_collector;
@@ -61,9 +63,9 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     std::unordered_map<UUID, std::shared_ptr<Backend>> m_backends;
     tl::mutex m_backends_mtx;
 
-    ProviderImpl(const tl::engine& engine, uint16_t provider_id, const tl::pool& pool)
+    ProviderImpl(const tl::engine& engine, uint16_t provider_id, MPI_Comm comm, const tl::pool& pool)
     : tl::provider<ProviderImpl>(engine, provider_id)
-    , m_pool(pool)
+    , m_pool(pool), m_comm(comm)
     , m_create_collector(define("soma_create_collector", &ProviderImpl::createCollector, pool))
     , m_open_collector(define("soma_open_collector", &ProviderImpl::openCollector, pool))
     , m_close_collector(define("soma_close_collector", &ProviderImpl::closeCollector, pool))

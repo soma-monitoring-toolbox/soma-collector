@@ -125,7 +125,7 @@ install (FILES "${CMAKE_CURRENT_BINARY_DIR}/soma-config.cmake"
          DESTINATION ${soma-pkg} )
 install (DIRECTORY ../include/soma
          DESTINATION include
-         FILES_MATCHING PATTERN "*.h")
+         FILES_MATCHING PATTERN "*.hpp")
 install (FILES "${CMAKE_CURRENT_BINARY_DIR}/soma-server.pc"
                "${CMAKE_CURRENT_BINARY_DIR}/soma-client.pc"
                "${CMAKE_CURRENT_BINARY_DIR}/soma-admin.pc"
