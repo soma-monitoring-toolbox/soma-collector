@@ -1,0 +1,3 @@
+/users/dewiy/soma-collector/examples/lulesh/build/CMakeFiles/lulesh2.0.dir
+/users/dewiy/soma-collector/examples/lulesh/build/CMakeFiles/edit_cache.dir
+/users/dewiy/soma-collector/examples/lulesh/build/CMakeFiles/rebuild_cache.dir

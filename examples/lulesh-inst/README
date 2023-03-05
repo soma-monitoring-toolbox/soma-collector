@@ -1,0 +1,58 @@
+Build and run instructions:
+--------------------------
+Follow this sequence of steps to build and run LULESH with SYMBIOMON:
+1. Install spack
+2. Download the mochi repo from here: https://github.com/srini009/mochi-spack-packages. Change to the "experimental-dewi" branch. Add this repo to spack.
+3. In this directory, modify the Makefile appropriately and make the LULESH program
+4. Install SYMBIOMON: ```spack install mochi-symbiomon@develop+aggregator+reducer```
+   Note: You have need to install the appropriate libfabric variant depending on the kind of machine you are running on. 
+   This example assumes that you are running on a single node (or laptop). 
+5. Download this special flavor of TAU: https://github.com/srini009/tau2. Checkout the "symbiomon" branch. 
+6. Load the necessary symbiomon components: spack load mochi-symbiomon
+7. Configure TAU with these flags:  ./configure -mpi -bfd=download -mochi -prefix=/path/to/TAU_INSTALL
+8. The laptop_run_script/small-run.sh file is a sample job submission script for a single node installation (or a laptop). Use this script
+   to create your own job submission script on your cluster.
+
+Jupyter-based Remote Monitoring:
+-------------------------------------
+1. Install py-symbiomon: spack install py-mochi-symbiomon ^mochi-symbiomon@develop+aggregator+reducer
+2. Install Jupyter notebook and dependencies: spack install py-jupyter && spack install py-cycler && spack install py-matplotlib
+3. Load the spack modules: spack load py-mochi-symbiomon && spack load py-cycler && spack load py-matplotlib && spack load py-jupyter
+4. Run:
+   a. jupyter-notebook password (only needed for the first time)
+   b. jupyter-notebook --no-browser --port=8897 --ip=0.0.0.0
+5. In a separate terminal, run the LULESH program with SYMBIOMON monitoring support (COLLECTOR, AGGREGATOR, AND REDUCER)
+6. Tunnel to the server: ssh -N -f -L 8897:cn37:8897 username@cluster
+7. In your browser, run: http://localhost:8897
+8. Once you are connected to the Jupyter instance, run the notebook in this directory (test_symbiomon.ipynb)
+   Note: You would have to make appropriate modifications to the Jupyter notebook, depending on the protocol used, etc.
+
+Explanation of the setup:
+------------------------
+The small-run.qsub job script sets up three distributed components in this specified order:
+1. The distributed AGGREGATOR service (launched as a collection of MPI processes). These service
+ instances write out their addresses to a file (AGGREGATOR_ADDRESS_FILE).
+2. The distributed REDUCER service (for global reduction of metric data). This service connects
+to the AGGREGATOR using AGGREGATOR_ADDRESS_FILE. Additionally, the REDUCER writes out its own
+address to a separate file (REDUCER_ADDRESS_FILE).
+3. The MPI program (LULESH), instrumented using TAU/SYMBIOMON. As a part of the initialization routine,
+each MPI process connects to the AGGREGATOR and REDUCER instances through TAU.
+
+SYMBIOMON is a time-series metric monitoring service. TAU is used to seamlessly capture MPI performance
+data from the application (LULESH) and convert the performance data thus gathered to SYMBIOMON metrics. 
+This conversion happens inside tau2/plugins/examples/Tau_plugin_mochi_symbiomon.cpp. At the end of 
+every iteration, the LULESH application is instrumented to invoke the "Tau_dump" routine. The TAU SYMBIOMON
+plugin "hooks into" the dump event and uses this event to capture performance data from the application seamlessly.
+
+At the end of each iteration, each MPI process records (updates) the SYMBIOMON metrics corresponding
+to TAU performance data inside tau2/plugins/examples/Tau_plugin_mochi_symbiomon.cpp. Once every "N"
+iterations, each process reduces the locally collected SYMBIOMON metrics using a "reduction operator"
+defined with the metric. In this example, the reduction operator is "MAX". Metric reduction results
+in an RPC being sent from each MPI process to one of the AGGREGATOR instances. Specifically, 
+one RPC is sent per MPI process per SYMBIOMON metric. After locally reduced values are stored
+in the aggregator, rank 0 performs a global reduction of the metric data by contacting the REDUCER
+service. 
+
+The globally reduced metric data is written to STDERR ($JOB_ID.err). Metric reduction frequency
+is controlled using the environment variable TAU_SYMBIOMON_REDUCTION_FREQUENCY.
+

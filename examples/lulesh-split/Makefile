@@ -6,8 +6,8 @@ SHELL = /bin/sh
 CC = mpicxx
 LULESH_EXEC = lulesh2.0
 
-MPI_INC = /appl/spack/v017/install-tree/gcc-11.2.0/openmpi-4.1.2-h6c3ze/include #Change this
-MPI_LIB = /appl/spack/v017/install-tree/gcc-11.2.0/openmpi-4.1.2-h6c3ze/lib #Change this
+MPI_INC = /appl/spack/v017/install-tree/gcc-9.4.0/openmpi-4.1.2-h6c3ze/include #Change this
+MPI_LIB = /appl/spack/v017/install-tree/gcc-9.4.0/openmpi-4.1.2-h6c3ze/lib #Change this
 
 SERCXX = $(CC) -DUSE_MPI=0 #Change this
 MPICXX = $(CC) -DUSE_MPI=1 #Change this

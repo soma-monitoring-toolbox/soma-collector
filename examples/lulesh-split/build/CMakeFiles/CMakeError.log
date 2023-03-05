@@ -1,0 +1,60 @@
+Performing C++ SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_9b559/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_9b559.dir/build.make CMakeFiles/cmTC_9b559.dir/build
+gmake[1]: Entering directory '/users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_9b559.dir/src.cxx.o
+/appl/spack/v017/install-tree/gcc-8.5.0/gcc-11.2.0-zshp2k/bin/g++ -DCMAKE_HAVE_LIBC_PTHREAD  -I/projappl/project_2006549/spack/opt/spack/linux-rhel8-x86_64_v3/gcc-9.4.0/conduit-develop-nm6ma2xtmdwfk5n4r4nkwdvm6rjzvmd4/include  -o CMakeFiles/cmTC_9b559.dir/src.cxx.o -c /users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_9b559
+/appl/spack/v017/install-tree/gcc-8.5.0/cmake-3.21.4-elesn4/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9b559.dir/link.txt --verbose=1
+/appl/spack/v017/install-tree/gcc-8.5.0/gcc-11.2.0-zshp2k/bin/g++ -I/projappl/project_2006549/spack/opt/spack/linux-rhel8-x86_64_v3/gcc-9.4.0/conduit-develop-nm6ma2xtmdwfk5n4r4nkwdvm6rjzvmd4/include  -rdynamic CMakeFiles/cmTC_9b559.dir/src.cxx.o -o cmTC_9b559 
+/appl/spack/v017/install-tree////////////////////////////////////gcc-8.5.0/binutils-2.37-ed6z3n/bin/ld: CMakeFiles/cmTC_9b559.dir/src.cxx.o: in function `main':
+src.cxx:(.text+0x2d): undefined reference to `pthread_create'
+/appl/spack/v017/install-tree////////////////////////////////////gcc-8.5.0/binutils-2.37-ed6z3n/bin/ld: src.cxx:(.text+0x39): undefined reference to `pthread_detach'
+/appl/spack/v017/install-tree////////////////////////////////////gcc-8.5.0/binutils-2.37-ed6z3n/bin/ld: src.cxx:(.text+0x45): undefined reference to `pthread_cancel'
+/appl/spack/v017/install-tree////////////////////////////////////gcc-8.5.0/binutils-2.37-ed6z3n/bin/ld: src.cxx:(.text+0x56): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_9b559.dir/build.make:99: cmTC_9b559] Error 1
+gmake[1]: Leaving directory '/users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_9b559/fast] Error 2
+
+
+Source file was:
+#include <pthread.h>
+
+static void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_79ecd/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_79ecd.dir/build.make CMakeFiles/cmTC_79ecd.dir/build
+gmake[1]: Entering directory '/users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_79ecd.dir/CheckFunctionExists.cxx.o
+/appl/spack/v017/install-tree/gcc-8.5.0/gcc-11.2.0-zshp2k/bin/g++   -I/projappl/project_2006549/spack/opt/spack/linux-rhel8-x86_64_v3/gcc-9.4.0/conduit-develop-nm6ma2xtmdwfk5n4r4nkwdvm6rjzvmd4/include -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_79ecd.dir/CheckFunctionExists.cxx.o -c /users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx
+Linking CXX executable cmTC_79ecd
+/appl/spack/v017/install-tree/gcc-8.5.0/cmake-3.21.4-elesn4/bin/cmake -E cmake_link_script CMakeFiles/cmTC_79ecd.dir/link.txt --verbose=1
+/appl/spack/v017/install-tree/gcc-8.5.0/gcc-11.2.0-zshp2k/bin/g++ -I/projappl/project_2006549/spack/opt/spack/linux-rhel8-x86_64_v3/gcc-9.4.0/conduit-develop-nm6ma2xtmdwfk5n4r4nkwdvm6rjzvmd4/include -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_79ecd.dir/CheckFunctionExists.cxx.o -o cmTC_79ecd  -lpthreads 
+/appl/spack/v017/install-tree////////////////////////////////////gcc-8.5.0/binutils-2.37-ed6z3n/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_79ecd.dir/build.make:99: cmTC_79ecd] Error 1
+gmake[1]: Leaving directory '/users/dewiy/soma-collector/examples/lulesh-split/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_79ecd/fast] Error 2
+
+
+

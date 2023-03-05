@@ -19,4 +19,4 @@ spack:
       lib: [LD_LIBRARY_PATH]
       lib64: [LD_LIBRARY_PATH]
   repos:
-  - /users/sriamesh/SYMBIOMON/mochi-spack-packages
+  - /users/dewiy/mochi-spack-packages

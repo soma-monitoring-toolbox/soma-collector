@@ -1,0 +1,12 @@
+prefix=/users/dewiy/soma-collector/build
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: soma-admin
+Description: <insert description here>
+Version: 0.1.0
+
+Requires: thallium
+Libs: -L${libdir} -lsoma-admin -lstdc++
+Cflags: -I${includedir}
