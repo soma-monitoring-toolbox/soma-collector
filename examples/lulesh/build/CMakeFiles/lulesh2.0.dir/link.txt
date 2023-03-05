@@ -1,1 +1,0 @@
-/appl/spack/v017/install-tree/gcc-8.5.0/gcc-9.4.0-nfm4wc/bin/g++  -fopenmp -O3 -DNDEBUG -rdynamic "CMakeFiles/lulesh2.0.dir/lulesh-comm.cc.o" "CMakeFiles/lulesh2.0.dir/lulesh-init.cc.o" "CMakeFiles/lulesh2.0.dir/lulesh-util.cc.o" "CMakeFiles/lulesh2.0.dir/lulesh-viz.cc.o" CMakeFiles/lulesh2.0.dir/lulesh.cc.o -o lulesh2.0  -lmpi 
