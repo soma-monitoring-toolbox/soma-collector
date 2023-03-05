@@ -1,1 +1,0 @@
-/projappl/project_2006549/spack/opt/spack/linux-rhel8-x86_64_v3/gcc-9.4.0/argobots-1.1-lq6taxvvpykmu4iflcnozvz7vrbip3jd/.spack/spack-build-02-configure-out.txt
