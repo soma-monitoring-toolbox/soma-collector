@@ -43,7 +43,7 @@ find_package (TCLAP REQUIRED)
 # search for spdlog
 find_package(spdlog REQUIRED)
 # search for conduit
-# find_package(Conduit REQUIRED)
+find_package(Conduit REQUIRED)
 # search of bedrock if needed
 if (${ENABLE_BEDROCK})
     find_package(bedrock REQUIRED)
@@ -63,17 +63,17 @@ endif ()
 # if given relative path, resolve
 #get_filename_component(CONDUIT_DIR ${CONDUIT_DIR} ABSOLUTE)
 # check for expected cmake exported target files
-if(NOT EXISTS ${CONDUIT_DIR}/lib/cmake/conduit/ConduitConfig.cmake)
-    message(FATAL_ERROR "Could not find Conduit CMake include file (${CONDUIT_DIR}/lib/cmake/conduit/ConduitConfig.cmake)")
-endif()
+#if(NOT EXISTS ${CONDUIT_DIR}/lib/cmake/conduit/ConduitConfig.cmake)
+#    message(FATAL_ERROR "Could not find Conduit CMake include file (${CONDUIT_DIR}/lib/cmake/conduit/ConduitConfig.cmake)")
+#endif()
 
 #
 # Use CMake's find_package to import conduit's targets
 # using explicit path
 #
-find_package(Conduit REQUIRED
-             NO_DEFAULT_PATH 
-             PATHS ${CONDUIT_DIR}/lib/cmake/conduit)
+#find_package(Conduit REQUIRED
+#             NO_DEFAULT_PATH 
+#             PATHS ${CONDUIT_DIR}/lib/cmake/conduit)
 
 
 # library version set here (e.g. for shared libs).
