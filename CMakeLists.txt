@@ -52,16 +52,16 @@ endif ()
 #
 # Provide default CONDUIT_DIR that works in a conduit install
 #
-if(NOT CONDUIT_DIR)
-    set(CONDUIT_DIR "../")
-endif()
+#if(NOT CONDUIT_DIR)
+#    set(CONDUIT_DIR "../")
+#endif()
 
 #
 # Check for valid conduit install
 #
 
 # if given relative path, resolve
-get_filename_component(CONDUIT_DIR ${CONDUIT_DIR} ABSOLUTE)
+#get_filename_component(CONDUIT_DIR ${CONDUIT_DIR} ABSOLUTE)
 # check for expected cmake exported target files
 if(NOT EXISTS ${CONDUIT_DIR}/lib/cmake/conduit/ConduitConfig.cmake)
     message(FATAL_ERROR "Could not find Conduit CMake include file (${CONDUIT_DIR}/lib/cmake/conduit/ConduitConfig.cmake)")
