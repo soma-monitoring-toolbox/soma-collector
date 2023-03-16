@@ -16,9 +16,7 @@ soma::RequestResult<bool> DummyCollector::soma_publish(std::string node) {
     //conduit::Node n;
     //n.parse(node,"conduit_json");
 
-    std::cout << "Soma Publish" << std::endl;
-    std::cout << node << std::endl;
-
+    std::cout << "SOMA-COLLECTOR: Received conduit node through soma_publish" << std::endl;
     soma::RequestResult<bool> result;
     result.value() = true;
     return result;

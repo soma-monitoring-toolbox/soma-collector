@@ -21,9 +21,14 @@ SOURCES2.0 = \
 	lulesh-init.cc
 OBJECTS2.0 = $(SOURCES2.0:.cc=.o)
 
+SOMADEPS := $(shell pkg-config --cflags-only-I soma-client soma-server soma-admin nlohmann_json)
+SOMALIBDEPS := $(shell pkg-config --libs soma-client soma-server)
+CONDUITDEPS := $(shell spack location -i conduit)
+UUIDDEPS := $(shell spack location -i uuid)
+SOMAINCLUDES = $(SOMADEPS) -I$(CONDUITDEPS)/include
 #Default build suggestions with OpenMP for g++
-CXXFLAGS = -g -O3 -I. -Wall
-LDFLAGS = -g -O3
+CXXFLAGS = -g -O3 -I. -Wall -D_SOMAPLUGIN $(SOMAINCLUDES)
+LDFLAGS = -g -O3  $(SOMALIBDEPS) -L$(CONDUITDEPS)/lib -lconduit -L$(UUIDDEPS)/lib -luuid
 
 #Below are reasonable default flags for a serial build
 #CXXFLAGS = -g -O3 -I. -Wall

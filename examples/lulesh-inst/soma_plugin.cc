@@ -29,7 +29,6 @@ static std::string g_collector;
 static unsigned    g_provider_id;
 static std::string g_log_level = "info";
 int reduction_frequency = 1;
-int num_server = 1;
 static thallium::engine *engine;
 soma::Client *client;
 soma::CollectorHandle soma_client;
@@ -56,10 +55,12 @@ void parse_command_line(int myRank) {
 
     char *addr_file_name = getenv("SOMA_SERVER_ADDR_FILE");
     char *node_file_name = getenv("SOMA_NODE_ADDR_FILE");
+    int num_server = 0;
     num_server = std::stoi(std::string(getenv("SOMA_NUM_SERVERS_PER_INSTANCE")));
     server_instance_id = std::stoi(std::string(getenv("SOMA_SERVER_INSTANCE_ID")));
-    int my_server_offset = num_server % myRank;
-    std::string l = read_nth_line(g_address_file, server_instance_id*num_server + my_server_offset);
+    int my_server_offset = num_server % (myRank+1);
+    std::cout << "myRank, my_server_offset, server_instance_id, num_server" << "," << myRank << "," << my_server_offset << "," << server_instance_id << "," << num_server << std::endl;
+    std::string l = read_nth_line(g_address_file, server_instance_id*num_server + my_server_offset + 1);
     std::string delimiter = " ";
     size_t pos = 0;
     pos = l.find(delimiter);
