@@ -23,6 +23,12 @@ find_package_handle_standard_args (TCLAP "TCLAP (http://tclap.sourceforge.net/) 
 
 if (TCLAP_FOUND)
   set (TCLAP_INCLUDE_DIR ${TCLAP_INCLUDE_PATH})
+  if (NOT TARGET TCLAP::TCLAP)
+    add_library(TCLAP::TCLAP INTERFACE IMPORTED)
+    set_target_properties(TCLAP::TCLAP PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${TCLAP_INCLUDE_DIR}"
+    )
+  endif()
 endif (TCLAP_FOUND)
 
 mark_as_advanced(TCLAP_INCLUDE_PATH)

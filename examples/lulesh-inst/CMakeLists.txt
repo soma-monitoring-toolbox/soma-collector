@@ -17,20 +17,10 @@ else()
 endif()
 
 if (WITH_SOMA)
-  #find_package(mercury REQUIRED)
-  find_package (PkgConfig REQUIRED)
+	#find_package (PkgConfig REQUIRED)
+  find_package (soma)
   find_package(thallium REQUIRED)
-  list(APPEND LULESH_EXTERNAL_LIBS thallium)
-  #find_package(uuid REQUIRED)
-  #list(APPEND LULESH_EXTERNAL_LIBS uuid)
-  include_directories("/users/dewiy/soma-collector/include")
-  link_directories("/users/dewiy/soma-collector/include")
-  #link_directories("/users/dewiy/soma-collector/build/lib")
-  add_library(lsoma SHARED IMPORTED GLOBAL)
-  set_target_properties(lsoma PROPERTIES IMPORTED_LOCATION /users/dewiy/soma-collector/build/lib/libsoma-admin.so)
-  #set_target_properties(lsoma PROPERTIES IMPORTED_LOCATION /users/dewiy/soma-collector/build/lib/libsoma-bedrock-module.so)
-  #set_target_properties(lsoma PROPERTIES IMPORTED_LOCATION /users/dewiy/soma-collector/build/lib/libsoma-server.so)
-  #set_target_properties(lsoma PROPERTIES IMPORTED_LOCATION /users/dewiy/soma-collector/build/lib/libsoma-client.so)
+  list(APPEND LULESH_EXTERNAL_LIBS soma-client thallium)
   add_definitions("-D_SOMAPLUGIN=1")
 else()
   add_definitions("-D_SOMAPLUGIN=0")
@@ -69,11 +59,6 @@ set(LULESH_SOURCES
   lulesh-util.cc
   lulesh-viz.cc
   lulesh.cc)
-
-if (WITH_SOMA)
-  list(PREPEND LULESH_SOURCES soma_plugin.cc)
-  list(PREPEND LULESH_EXTERNAL_LIBS lsoma)
-endif()
 
 set(LULESH_EXEC lulesh2.0)
 

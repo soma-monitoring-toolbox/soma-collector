@@ -9,7 +9,6 @@
 #include <thallium.hpp>
 #include <memory>
 #include <unordered_set>
-#include <nlohmann/json.hpp>
 #include <soma/Client.hpp>
 #include <soma/Exception.hpp>
 #include <soma/AsyncRequest.hpp>
