@@ -1,7 +1,13 @@
 spack:
+  packages:
+    mpi:
+      buildable: false
+    openmpi:
+      externals:
+      - spec: openmpi@4.1.2
+        prefix: /appl/spack/v017/install-tree/gcc-11.2.0/openmpi-4.1.2-h6c3ze
+      buildable: false
   specs:
-  - cmake
-  - pkg-config
   - uuid
   - mochi-thallium ^libfabric fabrics=verbs,rxm
   - mochi-abt-io
@@ -19,4 +25,5 @@ spack:
       lib: [LD_LIBRARY_PATH]
       lib64: [LD_LIBRARY_PATH]
   repos:
-  - /users/dewiy/mochi-spack-packages
+  - ./mochi-spack-packages
+
