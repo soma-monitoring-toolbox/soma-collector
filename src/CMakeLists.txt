@@ -37,7 +37,7 @@ PUBLIC
 target_link_libraries (soma-server
 PRIVATE
     PkgConfig::ABTIO
-    spdlog::spdlog
+    spdlog::spdlog_header_only
 )
 target_include_directories (soma-server PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-server BEFORE PUBLIC
@@ -58,7 +58,7 @@ PUBLIC
 )
 target_link_libraries (soma-client
 PRIVATE
-	spdlog::spdlog
+	spdlog::spdlog_header_only
 )
 target_include_directories (soma-client PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-client BEFORE PUBLIC
@@ -79,7 +79,8 @@ PUBLIC
 )
 target_link_libraries (soma-admin
 PRIVATE
-	spdlog::spdlog)
+	spdlog::spdlog_header_only
+)
 target_include_directories (soma-admin PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-admin BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
