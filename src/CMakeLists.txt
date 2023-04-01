@@ -33,7 +33,8 @@ target_link_libraries (soma-server
     PkgConfig::ABTIO
     PkgConfig::UUID
     nlohmann_json::nlohmann_json
-    spdlog::spdlog)
+    spdlog::spdlog
+    conduit::conduit)
 target_include_directories (soma-server PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-server BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
@@ -45,7 +46,7 @@ set_target_properties (soma-server
 
 # client library
 add_library (soma-client ${client-src-files})
-target_link_libraries (soma-client thallium PkgConfig::UUID spdlog::spdlog)
+target_link_libraries (soma-client thallium PkgConfig::UUID spdlog::spdlog nlohmann_json::nlohmann_json conduit::conduit)
 target_include_directories (soma-client PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-client BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
@@ -57,7 +58,7 @@ set_target_properties (soma-client
 
 # admin library
 add_library (soma-admin ${admin-src-files})
-target_link_libraries (soma-admin thallium PkgConfig::UUID nlohmann_json::nlohmann_json spdlog::spdlog)
+target_link_libraries (soma-admin thallium PkgConfig::UUID nlohmann_json::nlohmann_json spdlog::spdlog conduit::conduit)
 target_include_directories (soma-admin PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-admin BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)

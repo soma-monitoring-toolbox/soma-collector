@@ -6,3 +6,5 @@ target_link_libraries (example-admin soma-admin)
 
 add_executable (example-client ${CMAKE_CURRENT_SOURCE_DIR}/client.cpp)
 target_link_libraries (example-client soma-client -lconduit)
+
+add_subdirectory(lulesh-inst)
