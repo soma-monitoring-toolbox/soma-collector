@@ -20,6 +20,8 @@ static unsigned    g_num_providers = 1;
 static int         g_num_threads = 0;
 static std::string g_log_level = "info";
 static bool        g_use_progress_thread = false;
+static constexpr int soma_comm_split_color = 88;
+static MPI_Comm soma_comm = MPI_COMM_WORLD;
 
 static void parse_command_line(int argc, char** argv);
 
@@ -42,7 +44,7 @@ static void setup_admin_nodes(tl::engine engine, std::string server_addr, int ra
 	    }
 	    addr_file.close();
 	}
-	MPI_Barrier(MPI_COMM_WORLD);
+	MPI_Barrier(soma_comm);
     }
 
 }
@@ -60,16 +62,22 @@ int main(int argc, char** argv) {
     std::vector<snt::Provider> providers;
 
     engine.enable_remote_shutdown();
+    int world_rank, world_size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    
+    MPI_Comm_split(MPI_COMM_WORLD, soma_comm_split_color, world_rank, &soma_comm); 
     MPI_Comm new_comm;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(soma_comm, &rank);
+    MPI_Comm_size(soma_comm, &size);
+
+    std::cout << "SOMA COMM rank: " << rank << " and SOMA COMM size: " << size << endl;
 
     if(rank == 0) {
 	    addr_file.open(getenv("SOMA_SERVER_ADDR_FILE"), ios::app);
 	    addr_file << size << "\n";
 	    addr_file.close();
     }
-
    
     int num_instances = std::stoi(std::string(getenv("SOMA_NUM_SERVER_INSTANCES")));
 
@@ -80,13 +88,13 @@ int main(int argc, char** argv) {
 		    addr_file << rank << " " << (std::string)engine.self() << "\n";
 		    addr_file.close();
 	    }
-	    MPI_Barrier(MPI_COMM_WORLD);
+	    MPI_Barrier(soma_comm);
         }
-        MPI_Comm_dup(MPI_COMM_WORLD, &new_comm);
+        MPI_Comm_dup(soma_comm, &new_comm);
     } else {
         key = rank;
         color = (int)(rank/(size/num_instances));
-        MPI_Comm_split(MPI_COMM_WORLD, color, key, &new_comm);
+        MPI_Comm_split(soma_comm, color, key, &new_comm);
         MPI_Comm_rank(new_comm, &new_rank);
 
         for(int i = 0; i < size; i++) {
@@ -95,7 +103,7 @@ int main(int argc, char** argv) {
 		    addr_file << new_rank << " " << (std::string)engine.self() << "\n";
 		    addr_file.close();
 	    }
-	    MPI_Barrier(MPI_COMM_WORLD);
+	    MPI_Barrier(soma_comm);
         }
     }
        
@@ -103,7 +111,7 @@ int main(int argc, char** argv) {
         providers.emplace_back(engine, i, new_comm);
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(soma_comm);
     setup_admin_nodes(engine, (std::string)engine.self(), rank, size);
 
     engine.wait_for_finalize();
