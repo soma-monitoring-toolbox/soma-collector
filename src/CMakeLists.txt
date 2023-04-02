@@ -29,12 +29,16 @@ set (soma-vers "${SOMA_VERSION_MAJOR}.${SOMA_VERSION_MINOR}")
 # server library
 add_library (soma-server ${server-src-files} ${dummy-src-files})
 target_link_libraries (soma-server
+PUBLIC
     thallium
-    PkgConfig::ABTIO
     PkgConfig::UUID
     nlohmann_json::nlohmann_json
-    spdlog::spdlog
-    conduit::conduit)
+)
+target_link_libraries (soma-server
+PRIVATE
+    PkgConfig::ABTIO
+    spdlog::spdlog_header_only
+)
 target_include_directories (soma-server PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-server BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
@@ -46,7 +50,16 @@ set_target_properties (soma-server
 
 # client library
 add_library (soma-client ${client-src-files})
-target_link_libraries (soma-client thallium PkgConfig::UUID spdlog::spdlog nlohmann_json::nlohmann_json conduit::conduit)
+target_link_libraries (soma-client
+PUBLIC
+	thallium
+	PkgConfig::UUID
+	conduit::conduit
+)
+target_link_libraries (soma-client
+PRIVATE
+	spdlog::spdlog_header_only
+)
 target_include_directories (soma-client PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-client BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
@@ -58,7 +71,16 @@ set_target_properties (soma-client
 
 # admin library
 add_library (soma-admin ${admin-src-files})
-target_link_libraries (soma-admin thallium PkgConfig::UUID nlohmann_json::nlohmann_json spdlog::spdlog conduit::conduit)
+target_link_libraries (soma-admin
+PUBLIC
+	thallium
+	PkgConfig::UUID
+	nlohmann_json::nlohmann_json
+)
+target_link_libraries (soma-admin
+PRIVATE
+	spdlog::spdlog_header_only
+)
 target_include_directories (soma-admin PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-admin BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
@@ -71,7 +93,13 @@ set_target_properties (soma-admin
 if (${ENABLE_BEDROCK})
 # bedrock module library
 add_library (soma-bedrock-module ${module-src-files})
-target_link_libraries (soma-bedrock-module soma-server soma-admin soma-client bedrock-server)
+target_link_libraries (soma-bedrock-module
+PUBLIC
+	soma-server
+	soma-admin
+	soma-client
+	bedrock-server
+)
 target_include_directories (soma-bedrock-module PUBLIC $<INSTALL_INTERFACE:include>)
 target_include_directories (soma-bedrock-module BEFORE PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)

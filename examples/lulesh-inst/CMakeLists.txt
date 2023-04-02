@@ -58,11 +58,6 @@ set(LULESH_SOURCES
   lulesh-viz.cc
   lulesh.cc)
 
-if (WITH_SOMA)
-  #list(PREPEND LULESH_SOURCES soma_plugin.cc)
-  #list(PREPEND LULESH_EXTERNAL_LIBS soma-admin)
-endif()
-
 set(LULESH_EXEC lulesh2.0)
 
 add_executable(${LULESH_EXEC} ${LULESH_SOURCES})
