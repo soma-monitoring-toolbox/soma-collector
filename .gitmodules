@@ -1,0 +1,4 @@
+[submodule "mochi-spack-packages"]
+	path = mochi-spack-packages
+	url = https://github.com/srini009/mochi-spack-packages.git
+	branch = experimental-dewi

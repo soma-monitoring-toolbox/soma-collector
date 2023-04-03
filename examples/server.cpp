@@ -25,7 +25,7 @@ static MPI_Comm soma_comm = MPI_COMM_WORLD;
 
 static void parse_command_line(int argc, char** argv);
 
-static void setup_admin_nodes(tl::engine engine, std::string server_addr, int rank, int size) {
+static void setup_admin_nodes(tl::engine engine, std::string server_addr, int rank, int size, MPI_Comm comm) {
     ofstream addr_file;
 
     // Initialize the thallium server
@@ -44,75 +44,102 @@ static void setup_admin_nodes(tl::engine engine, std::string server_addr, int ra
 	    }
 	    addr_file.close();
 	}
+
 	MPI_Barrier(soma_comm);
     }
 
 }
 
+bool
+init_mpi_threaded(int thread_level)
+{
+    int thread_support_level = -1;
+    int result               = MPI_Init_thread(NULL, NULL, thread_level, &thread_support_level);
+    if(thread_support_level < thread_level || result != MPI_SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
-    MPI_Init(&argc, &argv);
+    //MPI_Init(&argc, &argv);
+    int thread_level = MPI_THREAD_MULTIPLE;
+    if (!init_mpi_threaded(thread_level)){
+          printf("Unable to initialize MPI at thread level %d\n", thread_level);
+	  return 1;
+    }
+
+    int soma_rank, soma_size;
+
+    MPI_Comm soma_comm;
+    MPI_Comm_split(MPI_COMM_WORLD, 900, 0, &soma_comm);
+    MPI_Comm_rank(soma_comm, &soma_rank);
+    MPI_Comm_size(soma_comm, &soma_size);
+
     ofstream addr_file;
     parse_command_line(argc, argv);
-    MPI_Barrier(MPI_COMM_WORLD);
-    int rank, size;
-    int key, color;
-    int new_rank;
-
+    MPI_Barrier(soma_comm);
+    
     tl::engine engine(g_address, THALLIUM_SERVER_MODE, g_use_progress_thread, g_num_threads);
     std::vector<snt::Provider> providers;
 
     engine.enable_remote_shutdown();
-    int world_rank, world_size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    int num_instances;
+    try {
+        num_instances = std::stoi(std::string(getenv("SOMA_NUM_SERVER_INSTANCES")));
+    } catch (std::exception e){
+        num_instances = 1;
+    }
+
+
+    int num_servers_per_instance;
+
+    //If SOMA_NUM_SERVERS_PER_INSTANCE is set, use that to divide the servers into instances
+    //Otherwise, if SOMA_NUM_SERVER_INSTANCES is set, divide the servers into that many instances (if possible)
+    try {
+    	num_servers_per_instance = std::stoi(std::string(getenv("SOMA_NUM_SERVERS_PER_INSTANCE")));
+    } catch (std::exception e){
+        num_servers_per_instance = soma_size/num_instances;
+    }
+
+    int instance_id = soma_rank / num_servers_per_instance;
     
-    MPI_Comm_split(MPI_COMM_WORLD, soma_comm_split_color, world_rank, &soma_comm); 
-    MPI_Comm new_comm;
-    MPI_Comm_rank(soma_comm, &rank);
-    MPI_Comm_size(soma_comm, &size);
+    int soma_instance_rank, soma_instance_size;
+    MPI_Comm soma_instance_comm;
 
-    std::cout << "SOMA COMM rank: " << rank << " and SOMA COMM size: " << size << endl;
+    MPI_Comm_split(soma_comm, 1000 + instance_id, 0, &soma_instance_comm);
+    MPI_Comm_rank(soma_instance_comm, &soma_instance_rank);
+    MPI_Comm_size(soma_instance_comm, &soma_instance_size);
 
-    if(rank == 0) {
+    if(soma_rank == 0) {
 	    addr_file.open(getenv("SOMA_SERVER_ADDR_FILE"), ios::app);
-	    addr_file << size << "\n";
+	    addr_file << soma_size << "\n";
 	    addr_file.close();
     }
-   
-    int num_instances = std::stoi(std::string(getenv("SOMA_NUM_SERVER_INSTANCES")));
 
-    if(num_instances == 1) {
-        for(int i = 0; i < size; i++) {
-	    if(rank == i) {
-		    addr_file.open(getenv("SOMA_SERVER_ADDR_FILE"), ios::app);
-		    addr_file << rank << " " << (std::string)engine.self() << "\n";
-		    addr_file.close();
-	    }
-	    MPI_Barrier(soma_comm);
-        }
-        MPI_Comm_dup(soma_comm, &new_comm);
-    } else {
-        key = rank;
-        color = (int)(rank/(size/num_instances));
-        MPI_Comm_split(soma_comm, color, key, &new_comm);
-        MPI_Comm_rank(new_comm, &new_rank);
+    char * filename = getenv("SOMA_SERVER_ADDR_FILE");
 
-        for(int i = 0; i < size; i++) {
-	    if(rank == i) {
-		    addr_file.open(getenv("SOMA_SERVER_ADDR_FILE"), ios::app);
-		    addr_file << new_rank << " " << (std::string)engine.self() << "\n";
-		    addr_file.close();
-	    }
-	    MPI_Barrier(soma_comm);
-        }
+    for(int i = 0; i < soma_size; i++) {
+	if(soma_rank == i) {
+	    addr_file.open(getenv("SOMA_SERVER_ADDR_FILE"), ios::app);
+	    addr_file << soma_rank << " " << (std::string)engine.self() << "\n";
+	    addr_file.close();
+	}
+	MPI_Barrier(soma_comm);
+
     }
-       
-    for(unsigned i=0 ; i < g_num_providers; i++) {
-        providers.emplace_back(engine, i, new_comm);
+      
+    for(size_t i = 0 ; i < g_num_providers; i++) {
+        providers.emplace_back(engine, i, soma_instance_comm);
     }
-
+    
+    //Not sure why this sync is needed...
     MPI_Barrier(soma_comm);
-    setup_admin_nodes(engine, (std::string)engine.self(), rank, size);
+    setup_admin_nodes(engine, (std::string)engine.self(), soma_rank, soma_size, soma_comm);
+
+    //Sync with client
+    MPI_Barrier(MPI_COMM_WORLD);
 
     engine.wait_for_finalize();
     MPI_Finalize();
