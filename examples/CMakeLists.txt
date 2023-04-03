@@ -16,9 +16,13 @@ PRIVATE
 )
 
 add_executable (example-client ${CMAKE_CURRENT_SOURCE_DIR}/client.cpp)
+
 target_link_libraries (example-client
 PRIVATE
     soma-client
     conduit::conduit
     TCLAP::TCLAP
 )
+
+add_subdirectory(lulesh-inst)
+

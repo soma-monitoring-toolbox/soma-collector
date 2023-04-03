@@ -17,7 +17,7 @@ else()
 endif()
 
 if (WITH_SOMA)
-  find_package (soma)
+  find_package (soma REQUIRED)
   list(APPEND LULESH_EXTERNAL_LIBS soma-client)
   add_definitions("-D_SOMAPLUGIN=1")
 else()
