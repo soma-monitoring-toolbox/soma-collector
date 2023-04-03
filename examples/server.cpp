@@ -47,11 +47,35 @@ static void setup_admin_nodes(tl::engine engine, std::string server_addr, int ra
 
 }
 
+bool
+init_mpi_threaded(int thread_level)
+{
+    int thread_support_level = -1;
+    int result               = MPI_Init_thread(NULL, NULL, thread_level, &thread_support_level);
+    if(thread_support_level < thread_level || result != MPI_SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
-    MPI_Init(&argc, &argv);
+    //MPI_Init(&argc, &argv);
+    int thread_level = MPI_THREAD_MULTIPLE;
+    if (!init_mpi_threaded(thread_level)){
+          printf("Unable to initialize MPI at thread level %d\n", thread_level);
+	  return 1;
+    }
+
+    int soma_rank, soma_size;
+
+    MPI_Comm soma_comm;
+    MPI_Comm_split(MPI_COMM_WORLD, 900, 0, &soma_comm);
+    MPI_Comm_rank(soma_comm, &soma_rank);
+    MPI_Comm_size(soma_comm, &soma_size);
+
     ofstream addr_file;
     parse_command_line(argc, argv);
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(soma_comm);
     
     tl::engine engine(g_address, THALLIUM_SERVER_MODE, g_use_progress_thread, g_num_threads);
     std::vector<snt::Provider> providers;
@@ -66,16 +90,10 @@ int main(int argc, char** argv) {
         instance_id = 0;
     }
 
-    int soma_rank, soma_size;
+    
     int soma_instance_rank, soma_instance_size;
-
-    MPI_Comm soma_comm;
-    MPI_Comm_split(MPI_COMM_WORLD, 900 + instance_id, 0, &soma_comm);
-    MPI_Comm_rank(soma_comm, &soma_rank);
-    MPI_Comm_size(soma_comm, &soma_size);
-
     MPI_Comm soma_instance_comm;
-    MPI_Comm_split(MPI_COMM_WORLD, 1000 + instance_id, 0, &soma_instance_comm);
+    MPI_Comm_split(soma_comm, 1000 + instance_id, 0, &soma_instance_comm);
     MPI_Comm_rank(soma_instance_comm, &soma_instance_rank);
     MPI_Comm_size(soma_instance_comm, &soma_instance_size);
 

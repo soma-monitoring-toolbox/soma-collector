@@ -5,7 +5,7 @@ spack:
     openmpi:
       externals:
       - spec: openmpi@4.1.2
-        prefix: /appl/spack/v017/install-tree/gcc-11.2.0/openmpi-4.1.2-h6c3ze
+        prefix: /appl/spack/v017/install-tree/gcc-9.4.0/openmpi-4.1.2-cgr4nz
       buildable: false
   specs:
   - uuid
@@ -26,4 +26,3 @@ spack:
       lib64: [LD_LIBRARY_PATH]
   repos:
   - ./mochi-spack-packages
-
