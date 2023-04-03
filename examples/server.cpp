@@ -83,16 +83,31 @@ int main(int argc, char** argv) {
     engine.enable_remote_shutdown();
 
 
-    int instance_id;
+
+
+    int num_instances;
     try {
-        instance_id = std::stoi(std::string(getenv("SOMA_NUM_SERVER_INSTANCES")));
+        num_instances = std::stoi(std::string(getenv("SOMA_NUM_SERVER_INSTANCES")));
     } catch (std::exception e){
-        instance_id = 0;
+        num_instances = 1;
     }
 
+
+    int num_servers_per_instance;
+
+    //If SOMA_NUM_SERVERS_PER_INSTANCE is set, use that to divide the servers into instances
+    //Otherwise, if SOMA_NUM_SERVER_INSTANCES is set, divide the servers into that many instances (if possible)
+    try {
+    	num_servers_per_instance = std::stoi(std::string(getenv("SOMA_NUM_SERVERS_PER_INSTANCE")));
+    } catch (std::exception e){
+        num_servers_per_instance = soma_size/num_instances;
+    }
+
+    int instance_id = soma_rank / num_servers_per_instance;
     
     int soma_instance_rank, soma_instance_size;
     MPI_Comm soma_instance_comm;
+
     MPI_Comm_split(soma_comm, 1000 + instance_id, 0, &soma_instance_comm);
     MPI_Comm_rank(soma_instance_comm, &soma_instance_rank);
     MPI_Comm_size(soma_instance_comm, &soma_instance_size);
@@ -104,7 +119,6 @@ int main(int argc, char** argv) {
     }
 
    
-    int num_instances = std::stoi(std::string(getenv("SOMA_NUM_SERVER_INSTANCES")));
 
     char * filename = getenv("SOMA_SERVER_ADDR_FILE");
 
