@@ -5,6 +5,7 @@
  */
 #include "DummyBackend.hpp"
 #include <iostream>
+#include <fstream>
 
 SOMA_REGISTER_BACKEND(dummy, DummyCollector);
 
@@ -13,10 +14,29 @@ void DummyCollector::sayHello() {
 }
 
 soma::RequestResult<bool> DummyCollector::soma_publish(std::string node) {
-    //conduit::Node n;
-    //n.parse(node,"conduit_json");
-
+    //Renodify the conduit serialization
+    conduit::Node n;
+    n.parse(node,"yaml");
+    //Add to queue
+    node_q.push(n);
     std::cout << "SOMA-COLLECTOR: Received conduit node through soma_publish" << std::endl;
+    soma::RequestResult<bool> result;
+    result.value() = true;
+    return result;
+}
+
+soma::RequestResult<bool> DummyCollector::soma_write(std::string filename) {
+    std::cout << "SOMA-COLLECTOR: Received request through soma_write" << std::endl;
+    //Write out queue to file
+    std::ofstream datafile;
+    datafile.open(filename, std::ios::out | std::ios::app);
+    while (!node_q.empty()) {
+	    conduit::Node n;
+	    n = node_q.front();
+	    datafile << n.to_yaml();
+	    node_q.pop();
+    }
+    datafile.close();
     soma::RequestResult<bool> result;
     result.value() = true;
     return result;

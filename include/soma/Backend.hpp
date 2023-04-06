@@ -78,6 +78,11 @@ class Backend {
     virtual soma::RequestResult<bool> soma_publish(std::string node) = 0;
 
     /**
+     * @brief Writes data to file.
+     */
+    virtual soma::RequestResult<bool> soma_write(std::string filename) = 0;
+
+    /**
      * @brief Compute the sum of two integers.
      *
      * @param x first integer

@@ -20,7 +20,7 @@ static unsigned    g_num_providers = 1;
 static int         g_num_threads = 0;
 static std::string g_log_level = "info";
 static bool        g_use_progress_thread = false;
-static constexpr int soma_comm_split_color = 88;
+static constexpr int soma_comm_split_color = 38;
 static MPI_Comm soma_comm = MPI_COMM_WORLD;
 
 static void parse_command_line(int argc, char** argv);
@@ -69,10 +69,12 @@ int main(int argc, char** argv) {
 	  return 1;
     }
 
-    int soma_rank, soma_size;
+    int soma_rank, soma_size, world_rank;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     MPI_Comm soma_comm;
-    MPI_Comm_split(MPI_COMM_WORLD, 900, 0, &soma_comm);
+    MPI_Comm_split(MPI_COMM_WORLD, soma_comm_split_color, world_rank, &soma_comm);
     MPI_Comm_rank(soma_comm, &soma_rank);
     MPI_Comm_size(soma_comm, &soma_size);
 
@@ -137,10 +139,10 @@ int main(int argc, char** argv) {
     //Not sure why this sync is needed...
     MPI_Barrier(soma_comm);
     setup_admin_nodes(engine, (std::string)engine.self(), soma_rank, soma_size, soma_comm);
-
     //Sync with client
     MPI_Barrier(MPI_COMM_WORLD);
 
+    //std::cout << "SERVER SYNCED WITH CLIENT RANKS" << std::endl;
     engine.wait_for_finalize();
     MPI_Finalize();
     return 0;

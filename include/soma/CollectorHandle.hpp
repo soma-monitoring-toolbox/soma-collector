@@ -86,6 +86,13 @@ class CollectorHandle {
     void soma_publish(conduit::Node node) const;
 
     /**
+     * @brief Requests the data gets written to file 
+     *
+     * @param[in] node conduit::Node
+     */
+    void soma_write(std::string filename, bool* complete) const;
+
+    /**
      * @brief Requests the target collector to compute the sum of two numbers.
      * If result is null, it will be ignored. If req is not null, this call
      * will be non-blocking and the caller is responsible for waiting on

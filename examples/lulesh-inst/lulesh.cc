@@ -2852,7 +2852,7 @@ int main(int argc, char *argv[])
 #if _SOMAPLUGIN
 //    Conduit node can contain anything and you can send it to the collector here
       conduit::Node node;
-      if((iter % 20) == 0) {
+      if((iter % 50) == 0) {
           node["test"] = "test_value";
           node["test/rank"] = myRank;
           node["test/values"] = {0,1,12,3,4,4};
@@ -2877,6 +2877,17 @@ int main(int argc, char *argv[])
               MPI_MAX, 0, MPI_COMM_WORLD);
 #else
    elapsed_timeG = elapsed_time;
+#endif
+
+#if _SOMAPLUGIN       
+   // An example of how you can write the queued conduit data out to file	  
+          if (myRank == 0) {
+              std::cout << "writing to file" << std::endl;
+              std::string outfile = "lulesh_data_soma.txt";	  
+              bool write_done;
+              soma_collector.soma_write(outfile, &write_done);
+              //std::cout << "Result: " << write_done << std::endl;	
+	      }
 #endif
 
    // Write out final viz file */

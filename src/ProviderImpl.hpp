@@ -59,6 +59,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     tl::remote_procedure m_check_collector;
     tl::remote_procedure m_say_hello;
     tl::remote_procedure m_soma_publish;
+    tl::remote_procedure m_soma_write;
     tl::remote_procedure m_compute_sum;
     // Backends
     std::unordered_map<UUID, std::shared_ptr<Backend>> m_backends;
@@ -74,6 +75,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     , m_check_collector(define("soma_check_collector", &ProviderImpl::checkCollector, pool))
     , m_say_hello(define("soma_say_hello", &ProviderImpl::sayHello, pool))
     , m_soma_publish(define("soma_publish", &ProviderImpl::soma_publish, pool))
+    , m_soma_write(define("soma_write", &ProviderImpl::soma_write, pool))
     , m_compute_sum(define("soma_compute_sum",  &ProviderImpl::computeSum, pool))
     {
         spdlog::trace("[provider:{0}] Registered provider with id {0}", id());
@@ -88,7 +90,8 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         m_check_collector.deregister();
         m_say_hello.deregister();
         m_soma_publish.deregister();
-        m_compute_sum.deregister();
+        m_soma_write.deregister();
+    	m_compute_sum.deregister();
         spdlog::trace("[provider:{}]    => done!", id());
     }
 
@@ -315,6 +318,18 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         spdlog::trace("[provider:{}] Successfully executed soma_publish on collector {}", id(), collector_id.to_string());
     }
 
+    // Soma Write API call
+    void soma_write(const tl::request& req,
+		    const UUID& collector_id,
+		    std::string filename) {
+        spdlog::trace("[provider:{}] Received soma_write for collector {}", id(), collector_id.to_string());
+	RequestResult<bool> result;
+	FIND_COLLECTOR(collector);
+        result = collector->soma_write(filename);
+      	req.respond(result);
+        spdlog::trace("[provider:{}] Successfully executed soma_write on collector {}", id(), collector_id.to_string());
+
+    }
     void computeSum(const tl::request& req,
                     const UUID& collector_id,
                     int32_t x, int32_t y) {

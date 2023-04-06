@@ -26,6 +26,7 @@ class ClientImpl {
 
     // SOMA API Calls
     tl::remote_procedure m_soma_publish;
+    tl::remote_procedure m_soma_write;
 
     ClientImpl(const tl::engine& engine)
     : m_engine(engine)
@@ -33,6 +34,7 @@ class ClientImpl {
     , m_say_hello(m_engine.define("soma_say_hello").disable_response())
     , m_compute_sum(m_engine.define("soma_compute_sum"))
     , m_soma_publish(m_engine.define("soma_publish"))
+    , m_soma_write(m_engine.define("soma_write"))
     {}
 
     ClientImpl(margo_instance_id mid)

@@ -56,12 +56,15 @@ CollectorHandle Client::makeCollectorHandle(
     auto ph        = tl::provider_handle(endpoint, provider_id);
     RequestResult<bool> result;
     result.success() = true;
+    //std::cout << "making collector handle" << std::endl;
     if(check) {
         result = self->m_check_collector.on(ph)(collector_id);
+//	std::cout << "collector handle check returned" << std::endl;
     }
     if(result.success()) {
+//	std::cout << "collector impl" << std::endl;
         auto collector_impl = std::make_shared<CollectorHandleImpl>(self, std::move(ph), collector_id);
-        return CollectorHandle(collector_impl);
+	return CollectorHandle(collector_impl);
     } else {
         throw Exception(result.error());
         return CollectorHandle(nullptr);

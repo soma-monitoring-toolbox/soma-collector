@@ -7,6 +7,9 @@
 #define __DUMMY_BACKEND_HPP
 
 #include <soma/Backend.hpp>
+#include <conduit/conduit.hpp>
+#include <queue>
+#include <vector>
 
 using json = nlohmann::json;
 
@@ -16,6 +19,7 @@ using json = nlohmann::json;
 class DummyCollector : public soma::Backend {
    
     json m_config;
+    std::queue <conduit::Node, std::deque<conduit::Node>> node_q;
 
     public:
 
@@ -60,6 +64,11 @@ class DummyCollector : public soma::Backend {
      */
     soma::RequestResult<bool> soma_publish(std::string node) override;
 
+    /**
+     * @brief Publishes a conduit node.
+     */
+    soma::RequestResult<bool> soma_write(std::string filename) override;
+    
     /**
      * @brief Compute the sum of two integers.
      *

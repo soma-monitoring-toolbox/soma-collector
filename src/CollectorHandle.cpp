@@ -55,9 +55,24 @@ void CollectorHandle::soma_publish(conduit::Node node) const {
     auto& rpc = self->m_client->m_soma_publish;
     auto& ph  = self->m_ph;
     auto& collector_id = self->m_collector_id;
-    RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_json"));
-    //RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_yaml());
+    //RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_json"));
+    RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_yaml());
     if(not result.success()) {
+        throw Exception(result.error());
+    }
+}
+
+// Soma write API call - writes data to file
+void CollectorHandle::soma_write(std::string filename, bool* complete) const {
+    if (not self) throw Exception("Invalid soma::CollectorHandle object");
+    auto& rpc = self->m_client->m_soma_write;
+    auto& ph = self->m_ph;
+    auto& collector_id = self->m_collector_id;
+    RequestResult<bool> result = rpc.on(ph)(collector_id, filename);
+    if (result.success()) {
+	*complete = result.value();
+    }
+    if (not result.success()) {
         throw Exception(result.error());
     }
 }

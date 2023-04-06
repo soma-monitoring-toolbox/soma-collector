@@ -4,3 +4,4 @@
 /spack.lock
 /cmake-build-debug/
 *.o
+/install
