@@ -24,5 +24,5 @@ PRIVATE
     TCLAP::TCLAP
 )
 
-add_subdirectory(lulesh-inst)
+#add_subdirectory(lulesh-inst)
 
