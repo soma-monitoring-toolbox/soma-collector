@@ -94,6 +94,37 @@ class CollectorHandle {
     NamespaceHandle* soma_create_namespace(std::string namespace_name) const;
 
     /**
+     * @brief Publishes a namespace after committing it. Also resets frequency_counter to publish_frequency
+     *
+     * @param[in] ns_handle NamespaceHandle
+     */
+    void soma_publish_namespace(NamespaceHandle ns_handle) const;
+
+    /**
+     * @brief Commits a namespace
+     *
+     * @param[in] ns_handle NamespaceHandle
+     */
+    void soma_commit_namespace(NamespaceHandle ns_handle) const;
+
+    /**
+     * @brief Sets a publish_frequency. Also resets frequency_counter to publish_frequency
+     *
+     * @param[in] ns_handle NamespaceHandle
+     */
+    void soma_set_publish_frequency(NamespaceHandle ns_handle, int publish_frequency) const;
+
+    /**
+     * @brief Update a namespace handle with new data.
+     *
+     * @param[in] ns_handle NamespaceHandle
+     * @param[in] key key, representing the "level" in the Conduit Node
+     * @param[in] value double value (we should also support string, int in the future)
+     * @param[in] op operation type (OVERWRITE, APPEND)
+     */
+    void soma_update_namespace(NamespaceHandle ns_handle, std::string key, double value, int soma_op) const;
+
+    /**
      * @brief Requests the data gets written to file 
      *
      * @param[in] node conduit::Node

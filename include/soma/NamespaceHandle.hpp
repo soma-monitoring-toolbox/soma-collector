@@ -40,6 +40,10 @@ class NamespaceHandle {
     NamespaceHandle& operator=(NamespaceHandle&&) = default;
     NamespaceHandle& operator=(const NamespaceHandle&) = default;
 
+    std::string& get_namespace_name() {
+        return m_namespace_name;
+    }
+
     int& get_frequency_counter() {
         return m_frequency_counter;
     }

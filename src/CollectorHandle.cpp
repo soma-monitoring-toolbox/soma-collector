@@ -68,6 +68,42 @@ NamespaceHandle* CollectorHandle::soma_create_namespace(std::string namespace_na
     return new NamespaceHandle(namespace_name);
 }
 
+void CollectorHandle::soma_publish_namespace(NamespaceHandle ns_handle) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    ns_handle.get_is_uncommitted() = false;
+    ns_handle.get_frequency_counter() = ns_handle.get_publish_frequency();
+    soma_publish(ns_handle.get_raw_node());
+}
+
+void CollectorHandle::soma_commit_namespace(NamespaceHandle ns_handle) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    ns_handle.get_is_uncommitted() = false;
+}
+
+void CollectorHandle::soma_set_publish_frequency(NamespaceHandle ns_handle, int freq) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    ns_handle.get_publish_frequency() = freq;
+    ns_handle.get_frequency_counter() = ns_handle.get_publish_frequency();
+}
+
+void CollectorHandle::soma_update_namespace(NamespaceHandle ns_handle, std::string key, double value, int soma_op) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    ns_handle.get_is_uncommitted() = true;
+    conduit::Node node = ns_handle.get_raw_node();
+    std::string conduit_key = ns_handle.get_namespace_name() + "/" + key;
+    if(soma_op == OVERWRITE) {
+        node[conduit_key.c_str()] = value;
+    } else {
+        conduit::Node &entry = node[conduit_key.c_str()].append();
+	entry.set(value);
+    }
+    /* Publish the node if the frequency_counter reaches 0 */
+    if(ns_handle.get_frequency_counter() == 0) {
+	soma_publish_namespace(ns_handle);
+    }
+}
+
+
 // Soma write API call - writes data to file
 void CollectorHandle::soma_write(std::string filename, bool* complete) const {
     if (not self) throw Exception("Invalid soma::CollectorHandle object");
