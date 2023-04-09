@@ -78,6 +78,7 @@ void CollectorHandle::soma_publish_namespace(NamespaceHandle ns_handle) const {
 void CollectorHandle::soma_commit_namespace(NamespaceHandle ns_handle) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     ns_handle.get_is_uncommitted() = false;
+    std::cout << ns_handle.get_raw_node().to_string() << std::endl;
 }
 
 void CollectorHandle::soma_set_publish_frequency(NamespaceHandle ns_handle, int freq) const {
@@ -89,9 +90,10 @@ void CollectorHandle::soma_set_publish_frequency(NamespaceHandle ns_handle, int 
 void CollectorHandle::soma_update_namespace(NamespaceHandle ns_handle, std::string key, double value, int soma_op) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     ns_handle.get_is_uncommitted() = true;
-    conduit::Node node = ns_handle.get_raw_node();
+    conduit::Node &node = ns_handle.get_raw_node();
     std::string conduit_key = ns_handle.get_namespace_name() + "/" + key;
-    if(soma_op == OVERWRITE) {
+
+    if(soma_op == soma::OVERWRITE) {
         node[conduit_key.c_str()] = value;
     } else {
         conduit::Node &entry = node[conduit_key.c_str()].append();
@@ -101,6 +103,8 @@ void CollectorHandle::soma_update_namespace(NamespaceHandle ns_handle, std::stri
     if(ns_handle.get_frequency_counter() == 0) {
 	soma_publish_namespace(ns_handle);
     }
+
+    std::cout << node.to_string() << std::endl;
 }
 
 
