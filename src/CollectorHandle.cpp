@@ -5,6 +5,7 @@
  */
 #include "soma/CollectorHandle.hpp"
 #include "soma/RequestResult.hpp"
+#include "soma/NamespaceHandle.hpp"
 #include "soma/Exception.hpp"
 
 #include "AsyncRequestImpl.hpp"
@@ -60,6 +61,11 @@ void CollectorHandle::soma_publish(conduit::Node node) const {
     if(not result.success()) {
         throw Exception(result.error());
     }
+}
+
+NamespaceHandle* CollectorHandle::soma_create_namespace(std::string namespace_name) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    return new NamespaceHandle(namespace_name);
 }
 
 // Soma write API call - writes data to file

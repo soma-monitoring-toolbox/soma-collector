@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 #include <soma/Client.hpp>
+#include <soma/NamespaceHandle.hpp>
 #include <soma/Exception.hpp>
 #include <soma/AsyncRequest.hpp>
 
@@ -84,6 +85,13 @@ class CollectorHandle {
      * @param[in] node conduit::Node
      */
     void soma_publish(conduit::Node node) const;
+
+    /**
+     * @brief Creates a SOMA monitoring namespace and returns a namespace handle
+     *
+     * @param[in] namespace_name std::string
+     */
+    NamespaceHandle* soma_create_namespace(std::string namespace_name) const;
 
     /**
      * @brief Requests the data gets written to file 
