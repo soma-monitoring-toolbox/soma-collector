@@ -31,14 +31,11 @@ class NamespaceHandle {
     public:
 
     NamespaceHandle() = default;
+    ~NamespaceHandle() = default;
     NamespaceHandle(std::string namespace_name) {
 	    m_namespace_name = namespace_name;
-	    m_node[m_namespace_name.c_str()] = "top-level-domain";
+	    m_node[namespace_name.c_str()] = "namespace";
     }
-    NamespaceHandle(NamespaceHandle&&) = default;
-    NamespaceHandle(const NamespaceHandle&) = default;
-    NamespaceHandle& operator=(NamespaceHandle&&) = default;
-    NamespaceHandle& operator=(const NamespaceHandle&) = default;
 
     std::string& get_namespace_name() {
         return m_namespace_name;
@@ -56,8 +53,12 @@ class NamespaceHandle {
         return m_dirty_bit;
     }
 
-    conduit::Node& get_raw_node() {
+    conduit::Node get_raw_node() {
 	return m_node;
+    }
+
+    void update_node(std::string key, double value) {
+	m_node[key.c_str()] = value;
     }
 
     private:
