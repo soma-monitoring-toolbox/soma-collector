@@ -73,7 +73,6 @@ int main(int argc, char** argv) {
 
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    MPI_Comm soma_comm;
     MPI_Comm_split(MPI_COMM_WORLD, soma_comm_split_color, world_rank, &soma_comm);
     MPI_Comm_rank(soma_comm, &soma_rank);
     MPI_Comm_size(soma_comm, &soma_size);
