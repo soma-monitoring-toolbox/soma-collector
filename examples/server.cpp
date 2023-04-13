@@ -45,7 +45,7 @@ static void setup_admin_nodes(tl::engine engine, std::string server_addr, int ra
 	    addr_file.close();
 	}
 
-	MPI_Barrier(soma_comm);
+	MPI_Barrier(comm);
     }
 
 }
