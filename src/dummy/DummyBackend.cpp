@@ -16,10 +16,9 @@ void DummyCollector::sayHello() {
 soma::RequestResult<bool> DummyCollector::soma_publish(std::string node) {
     //Renodify the conduit serialization
     conduit::Node n;
-    n.parse(node,"yaml");
+    n.parse(node,"conduit_base64_json");
     //Add to queue
     node_q.push(n);
-    std::cout << "SOMA-COLLECTOR: Received conduit node through soma_publish" << std::endl;
     soma::RequestResult<bool> result;
     result.value() = true;
     return result;
