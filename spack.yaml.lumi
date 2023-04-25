@@ -1,0 +1,430 @@
+spack:
+  specs:
+  - uuid
+  - mochi-thallium ^libfabric
+  - mochi-abt-io
+  - nlohmann-json
+  - spdlog
+  - cppunit
+  - tclap
+  - mochi-bedrock ^mercury@master
+  - conduit@develop ~mpi~fortran~silo~hdf5
+  concretizer:
+    unify: true
+    reuse: true
+  modules:
+    prefix_inspections:
+      lib: [LD_LIBRARY_PATH]
+      lib64: [LD_LIBRARY_PATH]
+  repos:
+  - ./mochi-spack-packages
+  packages:
+    all:
+      require: '%cce@15.0.0'
+      providers:
+        mpi: [mpich, cray-mpich]
+    gmake:
+      externals:
+      - spec: gmake@4.2.1
+        prefix: /usr
+    findutils:
+      externals:
+      - spec: findutils@4.8.0
+        prefix: /usr
+    groff:
+      externals:
+      - spec: groff@1.22.4
+        prefix: /usr
+    autoconf:
+      externals:
+      - spec: autoconf@2.69
+        prefix: /usr
+      buildable: false
+    binutils:
+      externals:
+      - spec: binutils@2.38
+        prefix: /opt/cray/pe/cce/15.0.0/binutils/x86_64/x86_64-pc-linux-gnu
+      - spec: binutils@2.37.20211103
+        prefix: /usr
+    m4:
+      externals:
+      - spec: m4@1.4.18
+        prefix: /usr
+      buildable: false
+    cmake:
+      externals:
+      - spec: cmake@3.25.2
+        prefix: /usr
+      buildable: false
+    bison:
+      externals:
+      - spec: bison@3.0.4
+        prefix: /usr
+    automake:
+      externals:
+      - spec: automake@1.15.1
+        prefix: /usr
+      buildable: false
+    gawk:
+      externals:
+      - spec: gawk@4.2.1
+        prefix: /usr
+    flex:
+      externals:
+      - spec: flex@2.6.4+lex
+        prefix: /usr
+    openssh:
+      externals:
+      - spec: openssh@8.4p1
+        prefix: /usr
+      buildable: false
+    diffutils:
+      externals:
+      - spec: diffutils@3.6
+        prefix: /usr
+    pkg-config:
+      externals:
+      - spec: pkg-config@0.29.2
+        prefix: /usr
+    texinfo:
+      externals:
+      - spec: texinfo@6.5
+        prefix: /usr
+    coreutils:
+      externals:
+      - spec: coreutils@8.32
+        prefix: /usr
+    tar:
+      externals:
+      - spec: tar@1.34
+        prefix: /usr
+    curl:
+      externals:
+      - spec: curl@7.79.1+gssapi+ldap+nghttp2
+        prefix: /usr
+    git:
+      externals:
+      - spec: git@2.35.3~tcltk
+        prefix: /usr
+    libtool:
+      externals:
+      - spec: libtool@2.4.6
+        prefix: /usr
+      buildable: false
+    openssl:
+      externals:
+      - spec: openssl@1.1.1s
+        prefix: /usr
+      buildable: false
+    pkgconf:
+      externals:
+      - spec: pkgconf@1.8.0
+        prefix: /users/dewiy/soma-collector/.spack-env/view
+    mpi:
+      buildable: false
+    mpich:
+      externals:
+      - spec: cray-mpich@8.1.23
+        modules: [cray-mpich]
+      buildable: false
+    cray-mpich:
+      externals:
+      - spec: cray-mpich@8.1.23
+        modules: [cray-mpich]
+      buildable: false
+    libfabric:
+      externals:
+      - spec: libfabric@1.15.2.0
+        modules: [libfabric]
+      buildable: false
+    hdf5:
+      externals:
+      - spec: hdf5@1.12.2.1
+        modules: [cray-hdf5]
+      buildable: false
+    libdrm:
+      externals:
+      - spec: libdrm@2.4.110
+        modules: [libdrm]
+      buildable: false
+    mercury:
+      variants: ~boostsys ~checksum
+      buildable: true
+      version: [master]
+      target: []
+      providers: {}
+      compiler: []
+  view: true
+  compilers:
+  - compiler:
+      spec: cce@15.0.0
+      paths:
+        cc: /opt/cray/pe/craype/2.7.19/bin/cc
+        cxx: /opt/cray/pe/craype/2.7.19/bin/CC
+        f77: /opt/cray/pe/craype/2.7.19/bin/ftn
+        fc: /opt/cray/pe/craype/2.7.19/bin/ftn
+      flags: {}
+      operating_system: sles15
+      target: x86_64
+      modules:
+      - PrgEnv-cray
+      - CrayEnv
+      - craype-accel-amd-gfx90a
+      - rocm
+      - buildtools
+      - cray-python
+      - libfabric
+      environment:
+        prepend_path:
+          PKG_CONFIG_PATH: /usr/lib64/pkgconfig
+          LD_LIBRARY_PATH: /opt/cray/pe/pmi/default/lib
+      extra_rpaths: []
+  - compiler:
+      spec: clang@15.0.0
+      paths:
+        cc: /opt/cray/pe/cce/15.0.0/cce-clang/x86_64/bin/clang
+        cxx: /opt/cray/pe/cce/15.0.0/cce-clang/x86_64/bin/clang++
+        f77: null
+        fc: null
+      flags: {}
+      operating_system: sles15
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: rocmcc@5.2.3
+      paths:
+        cc: /opt/rocm/bin/amdclang
+        cxx: /opt/rocm/bin/amdclang++
+        f77: /opt/rocm/bin/amdflang
+        fc: /opt/rocm/bin/amdflang
+      flags: {}
+      operating_system: sles15
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@7.5.0
+      paths:
+        cc: /usr/bin/gcc
+        cxx: /usr/bin/g++
+        f77: /usr/bin/gfortran
+        fc: /usr/bin/gfortran
+      flags: {}
+      operating_system: sles15
+      target: any
+      modules: []
+      environment:
+        append_path:
+          PKG_CONFIG_PATH: /usr/lib64/pkgconfig
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@11.2.0
+      paths:
+        cc: /opt/cray/pe/craype/2.7.17/bin/cc
+        cxx: /opt/cray/pe/craype/2.7.17/bin/CC
+        f77: /opt/cray/pe/craype/2.7.17/bin/ftn
+        fc: /opt/cray/pe/craype/2.7.17/bin/ftn
+      flags: {}
+      operating_system: sles15
+      target: any
+      modules:
+      - PrgEnv-gnu
+      - gcc/11.2.0
+      - craype-x86-milan
+      - libfabric
+      environment:
+        prepend_path:
+          LD_LIBRARY_PATH: /opt/cray/pe/pmi/6.1.3/lib
+          PKG_CONFIG_PATH: /usr/lib64/pkgconfig
+      extra_rpaths: []
+  - compiler:
+      spec: cce@14.0.2
+      paths:
+        cc: /opt/cray/pe/craype/2.7.17/bin/cc
+        cxx: /opt/cray/pe/craype/2.7.17/bin/CC
+        f77: /opt/cray/pe/craype/2.7.17/bin/ftn
+        fc: /opt/cray/pe/craype/2.7.17/bin/ftn
+      flags: {}
+      operating_system: sles15
+      target: any
+      modules:
+      - PrgEnv-cray
+      - cce/14.0.2
+      - craype-x86-milan
+      - libfabric
+      environment:
+        set:
+          RFE_811452_DISABLE: '1'
+        append_path:
+          LD_LIBRARY_PATH: /opt/cray/pe/gcc-libs:/opt/cray/libfabric/1.15.0.0/lib64
+          PKG_CONFIG_PATH: /usr/lib64/pkgconfig
+        prepend_path:
+          LD_LIBRARY_PATH: /opt/cray/pe/pmi/6.1.3/lib
+      extra_rpaths:
+      - /opt/cray/pe/gcc-libs
+      - /opt/cray/gcc-libs
+  - compiler:
+      spec: rocmcc@5.1.0
+      paths:
+        cc: amdclang
+        cxx: amdclang++
+        f77: null
+        fc: amdflang
+      flags: {}
+      operating_system: sles15sp3
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@7.5.0
+      paths:
+        cc: gcc
+        cxx: g++
+        f77: null
+        fc: gfortran
+      flags: {}
+      operating_system: sles15sp3
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: cce@15.0.0
+      paths:
+        cc: craycc
+        cxx: craycxx
+        f77: null
+        fc: crayftn
+      flags: {}
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@12.2.0
+      paths:
+        cc: gcc
+        cxx: g++
+        f77: null
+        fc: gfortran
+      flags: {}
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@7.5.0
+      paths:
+        cc: gcc
+        cxx: g++
+        f77: null
+        fc: gfortran
+      flags: {}
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: aocc@3.2.0
+      paths:
+        cc: clang
+        cxx: clang++
+        f77: null
+        fc: flang
+      flags:
+        cflags: null
+        cxxflags: null
+        fflags: null
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: rocmcc@5.2.0
+      paths:
+        cc: amdclang
+        cxx: amdclang++
+        f77: null
+        fc: amdflang
+      flags: {}
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: nvhpc@22.7
+      paths:
+        cc: nvc
+        cxx: nvc++
+        f77: null
+        fc: nvfortran
+      flags: {}
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: cce@15.0.1
+      paths:
+        cc: craycc
+        cxx: craycxx
+        f77: null
+        fc: crayftn
+      flags: {}
+      operating_system: sles15sp4
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: cce@14.0.2
+      paths:
+        cc: craycc
+        cxx: craycxx
+        f77: null
+        fc: crayftn
+      flags: {}
+      operating_system: sles15sp3
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@11.2.0
+      paths:
+        cc: gcc
+        cxx: g++
+        f77: null
+        fc: gfortran
+      flags: {}
+      operating_system: sles15sp3
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: aocc@3.2.0
+      paths:
+        cc: clang
+        cxx: clang++
+        f77: null
+        fc: flang
+      flags:
+        cflags: null
+        cxxflags: null
+        fflags: null
+      operating_system: sles15sp3
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []

@@ -1,0 +1,28 @@
+spack:
+  packages:
+    mpi:
+      buildable: false
+    openmpi:
+      externals:
+      - spec: openmpi@4.1.2
+        prefix: /appl/spack/v017/install-tree/gcc-9.4.0/openmpi-4.1.2-cgr4nz
+      buildable: false
+  specs:
+  - uuid
+  - mochi-thallium ^libfabric fabrics=verbs,rxm
+  - mochi-abt-io
+  - nlohmann-json
+  - spdlog
+  - cppunit
+  - tclap
+  - conduit@develop
+  - mochi-bedrock
+  concretizer:
+    unify: true
+    reuse: false
+  modules:
+    prefix_inspections:
+      lib: [LD_LIBRARY_PATH]
+      lib64: [LD_LIBRARY_PATH]
+  repos:
+  - ./mochi-spack-packages
