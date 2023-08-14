@@ -51,6 +51,7 @@ void CollectorHandle::sayHello() const {
 }
 
 // Soma Publish API call
+/**
 void CollectorHandle::soma_publish(conduit::Node node) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     auto& rpc = self->m_client->m_soma_publish;
@@ -61,7 +62,18 @@ void CollectorHandle::soma_publish(conduit::Node node) const {
     if(not result.success()) {
         throw Exception(result.error());
     }
+}**/
+
+// Asynchronous publish API call
+thallium::async_response CollectorHandle::soma_publish(conduit::Node node) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    auto& rpc = self->m_client->m_soma_publish;
+    auto& ph  = self->m_ph;
+    auto& collector_id = self->m_collector_id;
+    auto response = rpc.on(ph).async(collector_id, node.to_string("conduit_base64_json"));
+    return response;
 }
+
 
 NamespaceHandle* CollectorHandle::soma_create_namespace(std::string namespace_name) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");

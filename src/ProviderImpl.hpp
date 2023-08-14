@@ -307,7 +307,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     }
 
     // Soma Publish API call
-    void soma_publish(const tl::request& req,
+    /*void soma_publish(const tl::request& req,
                      const UUID& collector_id,
                      std::string node) {
         spdlog::trace("[provider:{}] Received soma_publish for collector {}", id(), collector_id.to_string());
@@ -315,6 +315,19 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         FIND_COLLECTOR(collector);
         result = collector->soma_publish(node);
         req.respond(result);
+        spdlog::trace("[provider:{}] Successfully executed soma_publish on collector {}", id(), collector_id.to_string());
+    }*/
+    void soma_publish(const tl::request& req,
+                     const UUID& collector_id,
+                     std::string node) {
+        spdlog::trace("[provider:{}] Received soma_publish for collector {}", id(), collector_id.to_string());
+        RequestResult<bool> result;
+        FIND_COLLECTOR(collector);
+	auto engine = get_engine();
+	auto pool = engine.get_handler_pool();
+	result.value() = true;
+	req.respond(result);
+	collector->soma_publish(node, pool.total_size(), m_comm);
         spdlog::trace("[provider:{}] Successfully executed soma_publish on collector {}", id(), collector_id.to_string());
     }
 

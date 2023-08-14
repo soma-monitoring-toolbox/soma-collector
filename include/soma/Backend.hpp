@@ -12,6 +12,7 @@
 #include <functional>
 #include <nlohmann/json.hpp>
 #include <thallium.hpp>
+#include <mpi.h>
 
 /**
  * @brief Helper class to register backend types into the backend factory.
@@ -75,7 +76,7 @@ class Backend {
     /**
      * @brief Publishes a conduit node.
      */
-    virtual soma::RequestResult<bool> soma_publish(std::string node) = 0;
+    virtual soma::RequestResult<bool> soma_publish(std::string node, size_t pool_size, MPI_Comm comm) = 0;
 
     /**
      * @brief Writes data to file.

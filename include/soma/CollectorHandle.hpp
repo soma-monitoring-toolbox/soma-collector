@@ -84,7 +84,7 @@ class CollectorHandle {
      *
      * @param[in] node conduit::Node
      */
-    void soma_publish(conduit::Node node) const;
+    thallium::async_response soma_publish(conduit::Node node) const;
 
     /**
      * @brief Creates a SOMA monitoring namespace and returns a namespace handle

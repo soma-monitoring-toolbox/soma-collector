@@ -13,7 +13,7 @@ void DummyCollector::sayHello() {
     std::cout << "Hello World" << std::endl;
 }
 
-soma::RequestResult<bool> DummyCollector::soma_publish(std::string node) {
+soma::RequestResult<bool> DummyCollector::soma_publish(std::string node, size_t pool_size, MPI_Comm comm) {
     //Renodify the conduit serialization
     conduit::Node n;
     n.parse(node,"conduit_base64_json");

@@ -62,7 +62,7 @@ class DummyCollector : public soma::Backend {
     /**
      * @brief Publishes a conduit node.
      */
-    soma::RequestResult<bool> soma_publish(std::string node) override;
+    soma::RequestResult<bool> soma_publish(std::string node, size_t pool_size, MPI_Comm comm) override;
 
     /**
      * @brief Publishes a conduit node.
