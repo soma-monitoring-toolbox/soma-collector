@@ -1,8 +1,8 @@
 # (C) 2020 The University of Chicago 
 # See COPYRIGHT in top-level directory.
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.17)
 project (soma C CXX)
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
 enable_testing ()
 
 add_definitions (-g -Wextra -Wall -Wpedantic)

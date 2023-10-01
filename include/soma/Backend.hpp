@@ -76,7 +76,12 @@ class Backend {
     /**
      * @brief Publishes a conduit node.
      */
-    virtual soma::RequestResult<bool> soma_publish(std::string node, size_t pool_size, MPI_Comm comm) = 0;
+    virtual void soma_publish(std::string node) = 0;
+
+    /**
+     * @brief Publishes a conduit node.
+     */
+    virtual soma::RequestResult<bool> soma_publish_async(std::string node, size_t pool_size, MPI_Comm comm) = 0;
 
     /**
      * @brief Writes data to file.

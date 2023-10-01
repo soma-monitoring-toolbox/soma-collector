@@ -6,6 +6,7 @@
 #ifndef __SOMA_COLLECTOR_HANDLE_HPP
 #define __SOMA_COLLECTOR_HANDLE_HPP
 
+#include <experimental/optional>
 #include <thallium.hpp>
 #include <memory>
 #include <unordered_set>
@@ -84,7 +85,14 @@ class CollectorHandle {
      *
      * @param[in] node conduit::Node
      */
-    thallium::async_response soma_publish(conduit::Node node) const;
+    void soma_publish(conduit::Node node) const;
+    
+    /**
+     * @brief Asynchronously requests the publishing of conduit Node
+     *
+     * @param[in] node conduit::Node
+     */
+    thallium::async_response soma_publish_async(conduit::Node node) const;
 
     /**
      * @brief Creates a SOMA monitoring namespace and returns a namespace handle
@@ -107,6 +115,14 @@ class CollectorHandle {
      */
     void soma_commit_namespace(NamespaceHandle *ns_handle) const;
 
+    /**
+     * @brief Asynchronously commits a namespace
+     *
+     * @param[in] ns_handle NamespaceHandle
+     */
+    std::experimental::optional<thallium::async_response> soma_commit_namespace_async(NamespaceHandle *ns_handle) const;
+    //void soma_commit_namespace_async(NamespaceHandle *ns_handle, AsyncRequest *req) const;
+    
     /**
      * @brief Sets a publish_frequency. Also resets frequency_counter to publish_frequency
      *

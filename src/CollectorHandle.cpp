@@ -50,24 +50,22 @@ void CollectorHandle::sayHello() const {
     rpc.on(ph)(collector_id);
 }
 
-// Soma Publish API call
-/**
+// Soma Publish Synchronous API call
 void CollectorHandle::soma_publish(conduit::Node node) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     auto& rpc = self->m_client->m_soma_publish;
     auto& ph  = self->m_ph;
     auto& collector_id = self->m_collector_id;
-    //RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_json"));
     RequestResult<bool> result = rpc.on(ph)(collector_id, node.to_string("conduit_base64_json"));
     if(not result.success()) {
         throw Exception(result.error());
     }
-}**/
+}
 
 // Asynchronous publish API call
-thallium::async_response CollectorHandle::soma_publish(conduit::Node node) const {
+thallium::async_response CollectorHandle::soma_publish_async(conduit::Node node) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
-    auto& rpc = self->m_client->m_soma_publish;
+    auto& rpc = self->m_client->m_soma_publish_async;
     auto& ph  = self->m_ph;
     auto& collector_id = self->m_collector_id;
     auto response = rpc.on(ph).async(collector_id, node.to_string("conduit_base64_json"));
@@ -87,15 +85,28 @@ void CollectorHandle::soma_publish_namespace(NamespaceHandle *ns_handle) const {
     soma_publish((*ns_handle).get_raw_node());
 }
 
+// Blocking commit namespace, calls blocking publish at appropriate frequency
 void CollectorHandle::soma_commit_namespace(NamespaceHandle *ns_handle) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     (*ns_handle).get_is_uncommitted() = false;
     (*ns_handle).get_frequency_counter() -= 1;
-
     /* Publish the node if the frequency_counter reaches 0 */
     if((*ns_handle).get_frequency_counter() == 0) {
 	soma_publish_namespace(ns_handle);
+    };
+}
+
+// Asynchronous commit namespace, call async publish at appropriate frequency
+std::experimental::optional<thallium::async_response> CollectorHandle::soma_commit_namespace_async(NamespaceHandle *ns_handle) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    (*ns_handle).get_is_uncommitted() = false;
+    (*ns_handle).get_frequency_counter() -= 1;
+    // Publish the node if the frequency_counter reaches 0 
+    if((*ns_handle).get_frequency_counter() == 0) {
+  	auto response = soma_publish_async((*ns_handle).get_raw_node());
+	return response;
     }
+    return {};
 }
 
 void CollectorHandle::soma_set_publish_frequency(NamespaceHandle *ns_handle, int freq) const {
@@ -114,7 +125,6 @@ void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::str
         (*ns_handle).update_node(conduit_key, value);
     }
 }
-
 
 // Soma write API call - writes data to file
 void CollectorHandle::soma_write(std::string filename, bool* complete) const {

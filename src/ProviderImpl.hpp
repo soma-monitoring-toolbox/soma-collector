@@ -59,6 +59,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     tl::remote_procedure m_check_collector;
     tl::remote_procedure m_say_hello;
     tl::remote_procedure m_soma_publish;
+    tl::remote_procedure m_soma_publish_async;
     tl::remote_procedure m_soma_write;
     tl::remote_procedure m_compute_sum;
     // Backends
@@ -75,6 +76,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     , m_check_collector(define("soma_check_collector", &ProviderImpl::checkCollector, pool))
     , m_say_hello(define("soma_say_hello", &ProviderImpl::sayHello, pool))
     , m_soma_publish(define("soma_publish", &ProviderImpl::soma_publish, pool))
+    , m_soma_publish_async(define("soma_publish_async", &ProviderImpl::soma_publish_async, pool))
     , m_soma_write(define("soma_write", &ProviderImpl::soma_write, pool))
     , m_compute_sum(define("soma_compute_sum",  &ProviderImpl::computeSum, pool))
     {
@@ -90,6 +92,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         m_check_collector.deregister();
         m_say_hello.deregister();
         m_soma_publish.deregister();
+        m_soma_publish_async.deregister();
         m_soma_write.deregister();
     	m_compute_sum.deregister();
         spdlog::trace("[provider:{}]    => done!", id());
@@ -306,18 +309,19 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         spdlog::trace("[provider:{}] Successfully executed sayHello on collector {}", id(), collector_id.to_string());
     }
 
-    // Soma Publish API call
-    /*void soma_publish(const tl::request& req,
+    // Blocking SOMA Publish API call
+    void soma_publish(const tl::request& req,
                      const UUID& collector_id,
                      std::string node) {
         spdlog::trace("[provider:{}] Received soma_publish for collector {}", id(), collector_id.to_string());
         RequestResult<bool> result;
         FIND_COLLECTOR(collector);
-        result = collector->soma_publish(node);
-        req.respond(result);
+        collector->soma_publish(node);
         spdlog::trace("[provider:{}] Successfully executed soma_publish on collector {}", id(), collector_id.to_string());
-    }*/
-    void soma_publish(const tl::request& req,
+    }
+
+    // Async SOMA Publish call
+    void soma_publish_async(const tl::request& req,
                      const UUID& collector_id,
                      std::string node) {
         spdlog::trace("[provider:{}] Received soma_publish for collector {}", id(), collector_id.to_string());
@@ -327,7 +331,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
 	auto pool = engine.get_handler_pool();
 	result.value() = true;
 	req.respond(result);
-	collector->soma_publish(node, pool.total_size(), m_comm);
+	collector->soma_publish_async(node, pool.total_size(), m_comm);
         spdlog::trace("[provider:{}] Successfully executed soma_publish on collector {}", id(), collector_id.to_string());
     }
 
