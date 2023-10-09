@@ -338,11 +338,12 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     // Soma Write API call
     void soma_write(const tl::request& req,
 		    const UUID& collector_id,
-		    std::string filename) {
+		    std::string filename,
+		    int soma_op) {
         spdlog::trace("[provider:{}] Received soma_write for collector {}", id(), collector_id.to_string());
 	RequestResult<bool> result;
 	FIND_COLLECTOR(collector);
-        result = collector->soma_write(filename);
+        result = collector->soma_write(filename, soma_op);
       	req.respond(result);
         spdlog::trace("[provider:{}] Successfully executed soma_write on collector {}", id(), collector_id.to_string());
 

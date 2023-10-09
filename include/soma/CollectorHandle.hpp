@@ -140,13 +140,37 @@ class CollectorHandle {
      * @param[in] op operation type (OVERWRITE, APPEND)
      */
     void soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, double value, int soma_op) const;
+    
+    /**
+     * @brief Update a namespace handle with new data.
+     *
+     * @param[in] ns_handle NamespaceHandle
+     * @param[in] uid Unique id string to be appended after the namespace, before the key
+     * @param[in] key key, representing the "level" in the Conduit Node
+     * @param[in] value string value (we should also support int in the future)
+     * @param[in] op operation type (OVERWRITE, APPEND)
+     */
+    void soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, std::string value, int soma_op) const;
+    
+    /**
+     * @brief Update a namespace handle with a list of data.
+     *
+     * @param[in] ns_handle NamespaceHandle
+     * @param[in] uid Unique id string to be appended after the namespace, before the key
+     * @param[in] key key, representing the "level" in the Conduit Node
+     * @param[in] values vector of doubles 
+     * @param[in] op operation type (OVERWRITE, APPEND)
+     */
+    void soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, std::vector<double> values, int soma_op) const;
 
     /**
      * @brief Requests the data gets written to file 
      *
-     * @param[in] node conduit::Node
+     * @param[in] string filename
+     * @param[in] bool complete
+     * @param[in] soma_op operation type (OVERWRITE, APPEND)
      */
-    void soma_write(std::string filename, bool* complete) const;
+    void soma_write(std::string filename, bool* complete, int soma_op) const;
 
     /**
      * @brief Requests the target collector to compute the sum of two numbers.

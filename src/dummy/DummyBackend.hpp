@@ -6,6 +6,7 @@
 #ifndef __DUMMY_BACKEND_HPP
 #define __DUMMY_BACKEND_HPP
 
+#include "soma/NamespaceHandle.hpp"
 #include <soma/Backend.hpp>
 #include <conduit/conduit.hpp>
 #include <queue>
@@ -72,7 +73,7 @@ class DummyCollector : public soma::Backend {
     /**
      * @brief Publishes a conduit node.
      */
-    soma::RequestResult<bool> soma_write(std::string filename) override;
+    soma::RequestResult<bool> soma_write(std::string filename, int soma_op) override;
     
     /**
      * @brief Compute the sum of two integers.

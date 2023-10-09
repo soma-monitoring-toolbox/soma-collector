@@ -86,7 +86,7 @@ class Backend {
     /**
      * @brief Writes data to file.
      */
-    virtual soma::RequestResult<bool> soma_write(std::string filename) = 0;
+    virtual soma::RequestResult<bool> soma_write(std::string filename, int soma_op) = 0;
 
     /**
      * @brief Compute the sum of two integers.

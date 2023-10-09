@@ -93,6 +93,8 @@ void CollectorHandle::soma_commit_namespace(NamespaceHandle *ns_handle) const {
     /* Publish the node if the frequency_counter reaches 0 */
     if((*ns_handle).get_frequency_counter() == 0) {
 	soma_publish_namespace(ns_handle);
+    	// reset the frequency counter
+	(*ns_handle).reset_frequency_counter();
     };
 }
 
@@ -103,7 +105,9 @@ std::experimental::optional<thallium::async_response> CollectorHandle::soma_comm
     (*ns_handle).get_frequency_counter() -= 1;
     // Publish the node if the frequency_counter reaches 0 
     if((*ns_handle).get_frequency_counter() == 0) {
-  	auto response = soma_publish_async((*ns_handle).get_raw_node());
+	auto response = soma_publish_async((*ns_handle).get_raw_node());
+    	// reset the frequency counter
+	(*ns_handle).reset_frequency_counter();
 	return response;
     }
     return {};
@@ -115,24 +119,46 @@ void CollectorHandle::soma_set_publish_frequency(NamespaceHandle *ns_handle, int
     (*ns_handle).get_frequency_counter() = (*ns_handle).get_publish_frequency();
 }
 
+// Overloaded function, this one takes a single double value when updating the Conduit Node
 void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, double value, int soma_op) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     (*ns_handle).get_is_uncommitted() = true;
 
     std::string conduit_key = (*ns_handle).get_namespace_name() + "/" + uid + "/" + key;
-
     if(soma_op == soma::OVERWRITE) {
         (*ns_handle).update_node(conduit_key, value);
     }
 }
 
+// Overloaded function, this one takes a single string value when updating the Conduit Node
+void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, std::string value, int soma_op) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    (*ns_handle).get_is_uncommitted() = true;
+
+    std::string conduit_key = (*ns_handle).get_namespace_name() + "/" + uid + "/" + key;
+    if(soma_op == soma::OVERWRITE) {
+        (*ns_handle).update_node(conduit_key, value);
+    }
+}
+
+// Overloaded function, this one takes a list and appends a list of values to a Conduit Node
+void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, std::vector<double> values, int soma_op) const {
+    if(not self) throw Exception("Invalid soma::CollectorHandle object");
+    (*ns_handle).get_is_uncommitted() = true;
+    
+    std::string conduit_key = (*ns_handle).get_namespace_name() + "/" + uid + "/" + key;
+    if(soma_op == soma::OVERWRITE) {
+        (*ns_handle).update_node(conduit_key, values);
+    }
+}
+
 // Soma write API call - writes data to file
-void CollectorHandle::soma_write(std::string filename, bool* complete) const {
+void CollectorHandle::soma_write(std::string filename, bool* complete, int soma_op) const {
     if (not self) throw Exception("Invalid soma::CollectorHandle object");
     auto& rpc = self->m_client->m_soma_write;
     auto& ph = self->m_ph;
     auto& collector_id = self->m_collector_id;
-    RequestResult<bool> result = rpc.on(ph)(collector_id, filename);
+    RequestResult<bool> result = rpc.on(ph)(collector_id, filename, soma_op);
     if (result.success()) {
 	*complete = result.value();
     }

@@ -45,6 +45,10 @@ class NamespaceHandle {
         return m_frequency_counter;
     }
 
+    void reset_frequency_counter() {
+	m_frequency_counter = m_publish_frequency;
+    }
+
     int& get_publish_frequency() {
         return m_publish_frequency;
     }
@@ -61,6 +65,21 @@ class NamespaceHandle {
 	m_node[key.c_str()] = value;
     }
 
+    void update_node(std::string key, std::string value) {
+	m_node[key.c_str()] = value;
+    }
+
+    void update_node(std::string key, std::vector<double> values) {
+	for (int i = 0; i < values.size(); i++) {
+		conduit::Node &list_entry = m_node[key.c_str()].append();
+    		list_entry.set(values[i]);
+	}
+    }
+/*    
+    void append_node(std::string key, double value) {
+	m_node[key.c_str()] = value;
+    }
+*/
     private:
 
     bool        m_dirty_bit = false;

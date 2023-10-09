@@ -21,7 +21,6 @@ void DummyCollector::soma_publish(std::string node) {
     node_q.push(n);
     soma::RequestResult<bool> result;
     result.value() = true;
-    //return result;
 }
 
 soma::RequestResult<bool> DummyCollector::soma_publish_async(std::string node, size_t pool_size, MPI_Comm comm) {
@@ -35,11 +34,15 @@ soma::RequestResult<bool> DummyCollector::soma_publish_async(std::string node, s
     return result;
 }
 
-soma::RequestResult<bool> DummyCollector::soma_write(std::string filename) {
-    std::cout << "SOMA-COLLECTOR: Received request through soma_write" << std::endl;
+soma::RequestResult<bool> DummyCollector::soma_write(std::string filename, int soma_op) {
+    //std::cout << "SOMA-COLLECTOR: Received request through soma_write" << std::endl;
     //Write out queue to file
     std::ofstream datafile;
-    datafile.open(filename, std::ios::out | std::ios::app);
+    if (soma_op == soma::OVERWRITE) {
+	    datafile.open(filename, std::ios::out);
+    } else {
+    	    datafile.open(filename, std::ios::out | std::ios::app);
+    }
     while (!node_q.empty()) {
 	    conduit::Node n;
 	    n = node_q.front();
