@@ -142,7 +142,7 @@ void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::str
 }
 
 // Overloaded function, this one takes a list and appends a list of values to a Conduit Node
-void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, std::vector<double> values, int soma_op) const {
+void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, const std::vector<double>& values, int soma_op) const {
     if(not self) throw Exception("Invalid soma::CollectorHandle object");
     (*ns_handle).get_is_uncommitted() = true;
     

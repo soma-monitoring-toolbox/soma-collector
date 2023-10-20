@@ -161,7 +161,7 @@ class CollectorHandle {
      * @param[in] values vector of doubles 
      * @param[in] op operation type (OVERWRITE, APPEND)
      */
-    void soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, std::vector<double> values, int soma_op) const;
+    void soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, const std::vector<double>& values, int soma_op) const;
 
     /**
      * @brief Requests the data gets written to file 

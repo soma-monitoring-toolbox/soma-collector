@@ -16,8 +16,23 @@ PRIVATE
 )
 
 add_executable (example-client ${CMAKE_CURRENT_SOURCE_DIR}/client.cpp)
-
 target_link_libraries (example-client
+PRIVATE
+    soma-client
+    conduit::conduit
+    TCLAP::TCLAP
+)
+
+add_executable (proc-monitor ${CMAKE_CURRENT_SOURCE_DIR}/proc_monitor.cpp)
+target_link_libraries (proc-monitor
+PRIVATE
+    soma-client
+    conduit::conduit
+    TCLAP::TCLAP
+)
+
+add_executable (rp-monitor ${CMAKE_CURRENT_SOURCE_DIR}/rp_monitor.cpp)
+target_link_libraries (rp-monitor
 PRIVATE
     soma-client
     conduit::conduit
