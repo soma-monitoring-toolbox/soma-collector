@@ -154,7 +154,10 @@ int main() {
 	
 	// update timers
 	std::chrono::duration initial_time(std::chrono::steady_clock::now() - start_init_time);
-	std::chrono::duration total_time(initial_time);
+	std::chrono::duration total_pub_time = std::chrono::nanoseconds::zero();
+	std::chrono::duration total_read_time = std::chrono::nanoseconds::zero();
+	//std::chrono::duration total_time(initial_time);
+	int num_samples = 0;
 
 	// temporarily hardcode a run of 10 minutes
 	std::chrono::time_point start = std::chrono::steady_clock::now();
@@ -165,15 +168,13 @@ int main() {
 
 	    // Periodically read from sysinfo
 	    std::time_t timestamp = std::time(nullptr);
-	    std::string host_time_key = hostname + "/"+ std::to_string(timestamp);
+	    std::string host_time_key = hostname;
+	    //std::string host_time_key = hostname + "/"+ std::to_string(timestamp);
 	    struct sysinfo info;
 	    ::sysinfo(&info);
 	    double utime = info.uptime;
 	    double nprocs = info.procs;
 	    double freeram = info.freeram;
-	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Uptime", utime, soma::OVERWRITE);
-	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Num Processes", nprocs, soma::OVERWRITE);
-	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Available RAM", freeram, soma::OVERWRITE);
 
 	    // read from /proc/stat to get CPU load
 	    auto stat_file = std::ifstream("/proc/stat");
@@ -185,33 +186,39 @@ int main() {
     		    break;
 		}
 
-		/*auto line_ss = std::istringstream(line);
-		std::string label;
-		int i = 0;
-        	while (line_ss >> temp) { 
-	            if (i == 0) {
-			label = temp;
-			i = 1;
-		    } else {
-			cpu_vals.push_back(std::stod(temp));
-		    }
-    		}*/
 	        // Update the namespace with a list per line
-		soma_collector.soma_update_namespace(ns_handle, stat_key, line, 0, soma::OVERWRITE); 	
-		//soma_collector.soma_update_namespace(ns_handle, stat_key, label, cpu_vals, soma::OVERWRITE); 	
+		// first five chars become key, rest are value string
+		soma_collector.soma_update_namespace(ns_handle, stat_key, line.substr(0,5), line.substr(6), soma::OVERWRITE); 	
 	    }
 
+	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Uptime", utime, soma::OVERWRITE);
+	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Num Processes", nprocs, soma::OVERWRITE);
+	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Available RAM", freeram, soma::OVERWRITE);
+
+	    //end read timer & begin pub timer
+	    std::chrono::time_point end_read_time = std::chrono::steady_clock::now();
 	    // Publish to the SOMA server
             auto response = soma_collector.soma_commit_namespace_async(ns_handle);
 	    if (response) {
 	        requests.push_back(*std::move(response));
 	    }
 
-	    total_time += std::chrono::steady_clock::now() - start_read_time;
-
+	    std::chrono::time_point end_pub_time = std::chrono::steady_clock::now();
+	    std::chrono::duration read_time(end_read_time - start_read_time);
+	    std::chrono::duration pub_time(end_pub_time - end_read_time);
+	    total_read_time += read_time;
+	    total_pub_time +=  pub_time;
+	    num_samples += 1;
+	    
 	    // if we've hit our 10 minute duration we write and exit
 	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(10)) { 
-            
+           	 
+		using Ss = std::chrono::milliseconds;
+		std::cout << "PROC Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
+		std::cout << "PROC Client Read Time " << std::chrono::duration_cast<Ss>(total_read_time).count() << std::endl;
+		std::cout << "PROC Client Pub Time " << std::chrono::duration_cast<Ss>(total_pub_time).count() << std::endl;
+		//std::cout << "PROC Client Total Time " << std::chrono::duration_cast<Ss>(total_time).count() << std::endl;
+		std::cout << "PROC Client Num Samples " << num_samples << std::endl;
 	    //write_counter--;
 	    // Eventually will have a better shutdown signal for now just write every so often
 	    //if (write_counter==0) {
@@ -222,11 +229,7 @@ int main() {
                 soma_collector.soma_write(outfile, &write_done, soma::OVERWRITE);
 		
 		std::chrono::duration write_time(std::chrono::steady_clock::now() - start_write_time);
-		total_time += write_time;
-		using Ss = std::chrono::milliseconds;
-		std::cout << "Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
-		std::cout << "Write Time " << std::chrono::duration_cast<Ss>(write_time).count() << std::endl;
-		std::cout << "Total Time " << std::chrono::duration_cast<Ss>(total_time).count() << std::endl;
+		std::cout << "PROC Client Write Time " << std::chrono::duration_cast<Ss>(write_time).count() << std::endl;
 		// reset the write counter
 	    	//write_counter = write_frequency;
 	    //}
