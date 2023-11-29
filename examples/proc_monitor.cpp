@@ -139,12 +139,19 @@ int main() {
 	int write_counter = write_frequency;
 	std::cout << "PROC_WRITE_FREQUENCY: Write to file frequency is: " << write_counter  << std::endl;
         
-	int sleep_time = 100;
+	int sleep_time = 5000;
 	char * sleepy = getenv("PROC_SOMA_SLEEP_TIME");
 	if (sleepy != NULL) { 
 	    sleep_time = std::atoi(sleepy);
 	}
 	std::cout << "PROC_SOMA_SLEEP_TIME is " << sleep_time << " ms" << std::endl;
+
+	int run_time = 10;
+	char * runtime = getenv("PROC_SOMA_RUN_TIME");
+	if (runtime != NULL) { 
+	    run_time = std::atoi(runtime);
+	}
+	std::cout << "PROC_SOMA_RUN_TIME is " << run_time << " mins" << std::endl;
 	//initialized = true;
 
 	// Get Node Name
@@ -182,13 +189,28 @@ int main() {
 	    std::vector<double> cpu_vals;
             std::string stat_key = host_time_key + "/stat/";
 	    while( std::getline(stat_file, line) ) {		
+		// first line without cpu info will end reading
 		if (line.find("cpu") == std::string::npos) {
     		    break;
 		}
-
+		int word_ct = 0;
+		std::string word = "";
+		std::string cpukey = "";
+		std::string cpuval = "";
+		std::istringstream iss{line};
+		while (std::getline(iss, word, ' ')) {
+		    if (word_ct == 0) {
+			cpukey = word;
+		    }
+		    else {
+	  		cpuval += word;
+		    }
+		    word_ct++;
+		}
 	        // Update the namespace with a list per line
 		// first five chars become key, rest are value string
-		soma_collector.soma_update_namespace(ns_handle, stat_key, line.substr(0,5), line.substr(6), soma::OVERWRITE); 	
+		soma_collector.soma_update_namespace(ns_handle, stat_key, cpukey, cpuval, soma::OVERWRITE); 	
+		//soma_collector.soma_update_namespace(ns_handle, stat_key, line.substr(0,5), line.substr(6), soma::OVERWRITE); 	
 	    }
 
 	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Uptime", utime, soma::OVERWRITE);
@@ -210,8 +232,8 @@ int main() {
 	    total_pub_time +=  pub_time;
 	    num_samples += 1;
 	    
-	    // if we've hit our 10 minute duration we write and exit
-	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(10)) { 
+	    // if we've hit our runtime minute duration we write and exit
+	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(run_time)) { 
            	 
 		using Ss = std::chrono::milliseconds;
 		std::cout << "PROC Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
@@ -228,6 +250,7 @@ int main() {
                 bool write_done;
                 soma_collector.soma_write(outfile, &write_done, soma::OVERWRITE);
 		
+		std::cout << "PROC Client Writing to File: " << outfile << std::endl; 
 		std::chrono::duration write_time(std::chrono::steady_clock::now() - start_write_time);
 		std::cout << "PROC Client Write Time " << std::chrono::duration_cast<Ss>(write_time).count() << std::endl;
 		// reset the write counter
