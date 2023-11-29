@@ -17,6 +17,7 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
+#include <filesystem>
 
 namespace tl = thallium;
 int use_local = 0;
@@ -148,7 +149,7 @@ int main() {
 	
 	std::string rp_file_path = getenv("RP_FILE_PATH");
 	std::cout << "Reading from RP file sandbox: " << rp_file_path << std::endl;
-	std::string rp_file_name = "task.000000/task.000000.prof";
+	//std::string rp_file_name = "task.000000/task.000000.prof";
 
 	// update timers
         std::chrono::duration initial_time(std::chrono::steady_clock::now() - start_init_time);
@@ -164,54 +165,58 @@ int main() {
 	while (1) {	
 	    
 	    std::chrono::time_point start_read_time = std::chrono::steady_clock::now();
-	   
-	    // Periodically read from RP files
-	    std::string rp_file = rp_file_path + "/" + rp_file_name;
-	    // std::time_t timestamp = std::time(nullptr);
-	    std::string rp_time_key = rp_file_name; //+ "/"+ std::to_string(timestamp);
-	    // read from rp profile to get workflow data
-	    auto rp_fs = std::ifstream(rp_file);
-	    std::string line;
-            while( std::getline(rp_fs, line) ) {            
-	    	auto line_ss = std::istringstream(line);
-		std::string val;
-		int i = 0;
-		std::string label, time, event, comp, thread, uid, state, msg;
-		while( std::getline(line_ss, val, ',') ) {            
-		    switch (i) {
-			case 0:
-		            time = val;
-			    break;
-		        case 1:
-			    event = val;
-			    break;
-		        case 2: 
-		            comp = val;
-			    break;
-	                case 3:
-	      		    thread = val;
-			    break;
-		        case 4:
-    			    uid = val;
-			    break;
-		        case 5:
-    			    state = val;
-			    break;
-		        case 6:
-    			    msg = val;
-			    break;
-		    }			
-		    i++;
-		}
+	  
+	    // Check which task folders exist
+	    for (const auto &entry : std::filesystem::directory_iterator(rp_file_path)){
+	    	if (entry.is_directory()) {
+		    if (entry.path().string().find("task") != std::string::npos) {
+			std::string rp_file_name = "task.000000/task.000000.prof";
+			
+	    		// Periodically read from RP files
+	    		std::string rp_file = rp_file_path + "/" + rp_file_name;
+	    		// std::time_t timestamp = std::time(nullptr);
+	    		std::string rp_time_key = rp_file_name; //+ "/"+ std::to_string(timestamp);
+	    		// read from rp profile to get workflow data
+	    		auto rp_fs = std::ifstream(rp_file);
+	    		std::string line;
+            		while( std::getline(rp_fs, line) ) {            
+	    			auto line_ss = std::istringstream(line);
+				std::string val;
+				int i = 0;
+				std::string label, time, event, comp, thread, uid, state, msg;
+				while( std::getline(line_ss, val, ',') ) {            
+		    			switch (i) {
+						case 0:
+		            				time = val;
+			    				break;
+		        			case 1:
+			    				event = val;
+			    				break;
+		        			case 2: 
+		            				comp = val;
+			   			 	break;
+	                			case 3:
+	      		    				thread = val;
+			    				break;
+		        			case 4:
+    			    				uid = val;
+			    				break;
+		        			case 5:
+    			    				state = val;
+			    				break;
+		        			case 6:
+    			    				msg = val;
+			    				break;
+		    			}			
+		    			i++;
+				}
 
-		// Update the namespace per low level metric
-                soma_collector.soma_update_namespace(ns_handle, rp_time_key, time, event, soma::OVERWRITE);    
-                //soma_collector.soma_update_namespace(ns_handle, rp_time_key, label +"/comp", comp, soma::OVERWRITE);    
-                //soma_collector.soma_update_namespace(ns_handle, rp_time_key, label + "/thread", thread, soma::OVERWRITE);    
-                //soma_collector.soma_update_namespace(ns_handle, rp_time_key, label + "/state", state, soma::OVERWRITE);    
-                //soma_collector.soma_update_namespace(ns_handle, rp_time_key, label + "/msg", msg, soma::OVERWRITE);    
-	    	
-            }
+				// Update the namespace per low level metric
+                		soma_collector.soma_update_namespace(ns_handle, rp_time_key, time, event, soma::OVERWRITE);    
+            		}
+		    }
+		}
+	    }
 	    
 	    //end read timer & begin pub timer
 	    std::chrono::time_point end_read_time = std::chrono::steady_clock::now();
@@ -230,7 +235,7 @@ int main() {
             num_samples += 1;
 
 	    //if we've hit our 10 minute duration we write and exit
-	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(10)) {
+	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(40)) {
 
                 using Ss = std::chrono::milliseconds;
                 std::cout << "RP Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
