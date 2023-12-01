@@ -147,6 +147,13 @@ int main() {
 	}
 	std::cout << "RP_SOMA_SLEEP_TIME is " << sleep_time << " ms" << std::endl;
 	
+	int run_time = 10;
+	char * runny = getenv("RP_SOMA_RUN_TIME");
+	if (runny != NULL) { 
+	    run_time = std::atoi(runny);
+	}
+	std::cout << "RP_SOMA_RUN_TIME is " << run_time << " ms" << std::endl;
+	
 	std::string rp_file_path = getenv("RP_FILE_PATH");
 	std::cout << "Reading from RP file sandbox: " << rp_file_path << std::endl;
 	//std::string rp_file_name = "task.000000/task.000000.prof";
@@ -170,21 +177,26 @@ int main() {
 	    for (const auto &entry : std::filesystem::directory_iterator(rp_file_path)){
 	    	if (entry.is_directory()) {
 		    if (entry.path().string().find("task") != std::string::npos) {
-			std::string rp_file_name = "task.000000/task.000000.prof";
+			std::string task_dir = entry.path().string();
+			for (const auto &taskfile : std::filesystem::directory_iterator(task_dir)) {
+			    if (entry.path().string().find(".prof") != std::string::npos) {
+
+				std::string rp_file_name = entry.path().string();
+				//std::string rp_file_name = "task.000000/task.000000.prof";
 			
-	    		// Periodically read from RP files
-	    		std::string rp_file = rp_file_path + "/" + rp_file_name;
-	    		// std::time_t timestamp = std::time(nullptr);
-	    		std::string rp_time_key = rp_file_name; //+ "/"+ std::to_string(timestamp);
-	    		// read from rp profile to get workflow data
-	    		auto rp_fs = std::ifstream(rp_file);
-	    		std::string line;
-            		while( std::getline(rp_fs, line) ) {            
-	    			auto line_ss = std::istringstream(line);
-				std::string val;
-				int i = 0;
-				std::string label, time, event, comp, thread, uid, state, msg;
-				while( std::getline(line_ss, val, ',') ) {            
+	    			// Periodically read from RP files
+	    			std::string rp_file = rp_file_path + "/" + rp_file_name;
+	    			// std::time_t timestamp = std::time(nullptr);
+	    			std::string rp_time_key = rp_file_name; //+ "/"+ std::to_string(timestamp);
+	    			// read from rp profile to get workflow data
+	    			auto rp_fs = std::ifstream(rp_file);
+	    			std::string line;
+            			while( std::getline(rp_fs, line) ) {            
+	    			    auto line_ss = std::istringstream(line);
+				    std::string val;
+				    int i = 0;
+				    std::string label, time, event, comp, thread, uid, state, msg;
+				    while( std::getline(line_ss, val, ',') ) {            
 		    			switch (i) {
 						case 0:
 		            				time = val;
@@ -209,11 +221,14 @@ int main() {
 			    				break;
 		    			}			
 		    			i++;
-				}
+	            		}
 
 				// Update the namespace per low level metric
                 		soma_collector.soma_update_namespace(ns_handle, rp_time_key, time, event, soma::OVERWRITE);    
-            		}
+            		
+				}
+			    }
+			}
 		    }
 		}
 	    }
@@ -234,8 +249,8 @@ int main() {
             total_pub_time +=  pub_time;
             num_samples += 1;
 
-	    //if we've hit our 10 minute duration we write and exit
-	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(40)) {
+	    //if we've hit our runtime minute duration we write and exit
+	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(run_time)) {
 
                 using Ss = std::chrono::milliseconds;
                 std::cout << "RP Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
