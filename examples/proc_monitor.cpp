@@ -172,11 +172,14 @@ int main() {
 	while (1) {
 	    
     	    std::chrono::time_point start_read_time = std::chrono::steady_clock::now();
+	    auto now = std::chrono::system_clock::now();
+	    std::time_t timestamp = std::chrono::system_clock::to_time_t(now);
 
 	    // Periodically read from sysinfo
-	    std::time_t timestamp = std::time(nullptr);
-	    std::string host_time_key = hostname;
+	    //std::time_t timestamp = std::time(nullptr);
+	    //std::string host_time_key = hostname;
 	    //std::string host_time_key = hostname + "/"+ std::to_string(timestamp);
+	    std::string host_time_key = std::to_string(timestamp);
 	    struct sysinfo info;
 	    ::sysinfo(&info);
 	    double utime = info.uptime;
@@ -198,12 +201,16 @@ int main() {
 		std::string cpukey = "";
 		std::string cpuval = "";
 		std::istringstream iss{line};
+		std::cout << line << std::endl;
 		while (std::getline(iss, word, ' ')) {
 		    if (word_ct == 0) {
 			cpukey = word;
+			std::cout << cpukey << std::endl;
 		    }
 		    else {
+			cpuval += " ";
 	  		cpuval += word;
+			std::cout << cpuval << std::endl;
 		    }
 		    word_ct++;
 		}
