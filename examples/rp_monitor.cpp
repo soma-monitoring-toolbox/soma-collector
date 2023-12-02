@@ -179,17 +179,17 @@ int main() {
 		    if (entry.path().string().find("task") != std::string::npos) {
 			std::string task_dir = entry.path().string();
 			for (const auto &taskfile : std::filesystem::directory_iterator(task_dir)) {
-			    if (entry.path().string().find(".prof") != std::string::npos) {
+			    if (taskfile.path().string().find(".prof") != std::string::npos) {
 
-				std::string rp_file_name = entry.path().string();
+				std::string rp_file_name = taskfile.path().string();
 				//std::string rp_file_name = "task.000000/task.000000.prof";
-			
+				std::cout << "Reading from file " << rp_file_name << std::endl;			
 	    			// Periodically read from RP files
-	    			std::string rp_file = rp_file_path + "/" + rp_file_name;
+	    			//std::string rp_file = rp_file_path + "/" + rp_file_name;
 	    			// std::time_t timestamp = std::time(nullptr);
 	    			std::string rp_time_key = rp_file_name; //+ "/"+ std::to_string(timestamp);
 	    			// read from rp profile to get workflow data
-	    			auto rp_fs = std::ifstream(rp_file);
+	    			auto rp_fs = std::ifstream(rp_file_name);
 	    			std::string line;
             			while( std::getline(rp_fs, line) ) {            
 	    			    auto line_ss = std::istringstream(line);
@@ -222,7 +222,7 @@ int main() {
 		    			}			
 		    			i++;
 	            		}
-
+				std::cout << "Metrics! " << event << std::endl;
 				// Update the namespace per low level metric
                 		soma_collector.soma_update_namespace(ns_handle, rp_time_key, time, event, soma::OVERWRITE);    
             		
