@@ -183,7 +183,7 @@ int main() {
 
 				std::string rp_file_name = taskfile.path().string();
 				//std::string rp_file_name = "task.000000/task.000000.prof";
-				std::cout << "Reading from file " << rp_file_name << std::endl;			
+				//std::cout << "Reading from file " << rp_file_name << std::endl;			
 	    			// Periodically read from RP files
 	    			//std::string rp_file = rp_file_path + "/" + rp_file_name;
 	    			// std::time_t timestamp = std::time(nullptr);
@@ -222,7 +222,7 @@ int main() {
 		    			}			
 		    			i++;
 	            		}
-				std::cout << "Metrics! " << event << std::endl;
+				//std::cout << "Metrics! " << event << std::endl;
 				// Update the namespace per low level metric
                 		soma_collector.soma_update_namespace(ns_handle, rp_time_key, time, event, soma::OVERWRITE);    
             		
