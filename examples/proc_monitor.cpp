@@ -201,16 +201,13 @@ int main() {
 		std::string cpukey = "";
 		std::string cpuval = "";
 		std::istringstream iss{line};
-		std::cout << line << std::endl;
 		while (std::getline(iss, word, ' ')) {
 		    if (word_ct == 0) {
 			cpukey = word;
-			std::cout << cpukey << std::endl;
 		    }
 		    else {
 			cpuval += " ";
 	  		cpuval += word;
-			std::cout << cpuval << std::endl;
 		    }
 		    word_ct++;
 		}
