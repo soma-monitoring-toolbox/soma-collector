@@ -5,6 +5,7 @@ PRIVATE
     soma-admin
     conduit::conduit
     TCLAP::TCLAP
+    MPI::MPI_CXX
 )
 
 add_executable (example-admin ${CMAKE_CURRENT_SOURCE_DIR}/admin.cpp)
@@ -21,6 +22,7 @@ PRIVATE
     soma-client
     conduit::conduit
     TCLAP::TCLAP
+    MPI::MPI_CXX
 )
 
 add_executable (proc-monitor ${CMAKE_CURRENT_SOURCE_DIR}/proc_monitor.cpp)
@@ -29,6 +31,7 @@ PRIVATE
     soma-client
     conduit::conduit
     TCLAP::TCLAP
+    MPI::MPI_CXX
 )
 
 add_executable (rp-monitor ${CMAKE_CURRENT_SOURCE_DIR}/rp_monitor.cpp)
@@ -37,6 +40,7 @@ PRIVATE
     soma-client
     conduit::conduit
     TCLAP::TCLAP
+    MPI::MPI_CXX
 )
 
 #add_subdirectory(lulesh-inst)
