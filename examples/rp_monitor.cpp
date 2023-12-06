@@ -156,20 +156,21 @@ int main() {
 	
 	std::string rp_file_path = getenv("RP_FILE_PATH");
 	std::cout << "Reading from RP file sandbox: " << rp_file_path << std::endl;
-	//std::string rp_file_name = "task.000000/task.000000.prof";
 
 	// update timers
         std::chrono::duration initial_time(std::chrono::steady_clock::now() - start_init_time);
         std::chrono::duration total_pub_time = std::chrono::nanoseconds::zero();
         std::chrono::duration total_read_time = std::chrono::nanoseconds::zero();
+        std::chrono::duration total_write_time = std::chrono::nanoseconds::zero();
 
 	//std::chrono::duration total_time(initial_time);
         int num_samples = 0;
 
         // temporarily hardcode a run of 10 minutes
         std::chrono::time_point start = std::chrono::steady_clock::now();
+	bool keep_running = true;
 
-	while (1) {	
+	while (keep_running) {	
 	    
 	    std::chrono::time_point start_read_time = std::chrono::steady_clock::now();
 	  
@@ -182,12 +183,8 @@ int main() {
 			    if (taskfile.path().string().find(".prof") != std::string::npos) {
 
 				std::string rp_file_name = taskfile.path().string();
-				//std::string rp_file_name = "task.000000/task.000000.prof";
-				//std::cout << "Reading from file " << rp_file_name << std::endl;			
 	    			// Periodically read from RP files
-	    			//std::string rp_file = rp_file_path + "/" + rp_file_name;
-	    			// std::time_t timestamp = std::time(nullptr);
-	    			std::string rp_time_key = rp_file_name; //+ "/"+ std::to_string(timestamp);
+	    			std::string rp_time_key = rp_file_name; 
 	    			// read from rp profile to get workflow data
 	    			auto rp_fs = std::ifstream(rp_file_name);
 	    			std::string line;
@@ -222,7 +219,6 @@ int main() {
 		    			}			
 		    			i++;
 	            		}
-				//std::cout << "Metrics! " << event << std::endl;
 				// Update the namespace per low level metric
                 		soma_collector.soma_update_namespace(ns_handle, rp_time_key, time, event, soma::OVERWRITE);    
             		
@@ -249,48 +245,40 @@ int main() {
             total_pub_time +=  pub_time;
             num_samples += 1;
 
-	    //if we've hit our runtime minute duration we write and exit
-	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(run_time)) {
+	    write_counter--;
+	    bool shutdown = (std::chrono::steady_clock::now() - start) >= std::chrono::minutes(run_time); 
+	    //if we've hit our runtime minute duration we write and exit, else just write
+	    if(write_counter == 0 || shutdown) {
 
-                using Ss = std::chrono::milliseconds;
-                std::cout << "RP Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
-                std::cout << "RP Client Read Time " << std::chrono::duration_cast<Ss>(total_read_time).count() << std::endl;
-                std::cout << "RP CLient Pub Time " << std::chrono::duration_cast<Ss>(total_pub_time).count() << std::endl;
-                //std::cout << "RP Client Total Time " << std::chrono::duration_cast<Ss>(total_time).count() << std::endl;
-                std::cout << "RP Client Num Samples " << num_samples << std::endl;
-                
 		std::chrono::time_point start_write_time = std::chrono::steady_clock::now();
                 // write to file
                 std::string outfile = "rp_data_soma.txt";
                 bool write_done;
                 soma_collector.soma_write(outfile, &write_done, soma::OVERWRITE);
+		std::chrono::duration write_time(std::chrono::steady_clock::now() - start_write_time);
+                total_write_time += write_time;
+		
+                if (shutdown) {
 
-                std::chrono::duration write_time(std::chrono::steady_clock::now() - start_write_time);
-                std::cout << "RP Client Write Time " << std::chrono::duration_cast<Ss>(write_time).count() << std::endl;
-                
-		// sleep so write can finish and then exit
-                std::this_thread::sleep_for(std::chrono::minutes(1));
-                break;
+                    using Ss = std::chrono::milliseconds;
+		    std::cout << "RP Client Write Time " << std::chrono::duration_cast<Ss>(write_time).count() << std::endl;
+                    std::cout << "RP Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
+                    std::cout << "RP Client Read Time " << std::chrono::duration_cast<Ss>(total_read_time).count() << std::endl;
+                    std::cout << "RP CLient Pub Time " << std::chrono::duration_cast<Ss>(total_pub_time).count() << std::endl;
+                    //std::cout << "RP Client Total Time " << std::chrono::duration_cast<Ss>(total_time).count() << std::endl;
+                    std::cout << "RP Client Num Samples " << num_samples << std::endl;
+		    // sleep so write can finish and then exit
+                    std::this_thread::sleep_for(std::chrono::minutes(1));
+                    keep_running = false;
+	        }
+		// reset the write counter
+		write_counter = write_frequency;
 
             }
 
-
-	    /*write_counter--;
-	    // Eventually will have a better shutdown signal for now just write every so often
-	    if (write_counter==0) {
-		// write to file
-                std::string outfile = "rp_data_soma.txt";
-                bool write_done;
-                soma_collector.soma_write(outfile, &write_done, soma::OVERWRITE);
-		// reset the write counter
-	    	write_counter = write_frequency;
-	    }
-	    std::time_t endtimestamp = std::time(nullptr);
-	    std::cout << "TIME READING FILE AND PUBLISHING " << std::difftime(endtimestamp, timestamp) << std::endl;
-*/
 	    // Configured with an environment variable
 	    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
-	} 
+	} // end while
 
     } catch(const soma::Exception& ex) {
         std::cerr << ex.what() << std::endl;

@@ -163,21 +163,21 @@ int main() {
 	std::chrono::duration initial_time(std::chrono::steady_clock::now() - start_init_time);
 	std::chrono::duration total_pub_time = std::chrono::nanoseconds::zero();
 	std::chrono::duration total_read_time = std::chrono::nanoseconds::zero();
+	std::chrono::duration total_write_time = std::chrono::nanoseconds::zero();
 	//std::chrono::duration total_time(initial_time);
 	int num_samples = 0;
 
-	// temporarily hardcode a run of 10 minutes
+	// run, sampling and writing periodically until time is up
 	std::chrono::time_point start = std::chrono::steady_clock::now();
+	bool keep_running = true;
 
-	while (1) {
+	while (keep_running) {
 	    
     	    std::chrono::time_point start_read_time = std::chrono::steady_clock::now();
 	    auto now = std::chrono::system_clock::now();
 	    std::time_t timestamp = std::chrono::system_clock::to_time_t(now);
 
 	    // Periodically read from sysinfo
-	    //std::time_t timestamp = std::time(nullptr);
-	    //std::string host_time_key = hostname;
 	    //std::string host_time_key = hostname + "/"+ std::to_string(timestamp);
 	    std::string host_time_key = std::to_string(timestamp);
 	    struct sysinfo info;
@@ -212,9 +212,7 @@ int main() {
 		    word_ct++;
 		}
 	        // Update the namespace with a list per line
-		// first five chars become key, rest are value string
 		soma_collector.soma_update_namespace(ns_handle, stat_key, cpukey, cpuval, soma::OVERWRITE); 	
-		//soma_collector.soma_update_namespace(ns_handle, stat_key, line.substr(0,5), line.substr(6), soma::OVERWRITE); 	
 	    }
 
 	    soma_collector.soma_update_namespace(ns_handle, host_time_key, "Uptime", utime, soma::OVERWRITE);
@@ -236,40 +234,42 @@ int main() {
 	    total_pub_time +=  pub_time;
 	    num_samples += 1;
 	    
-	    // if we've hit our runtime minute duration we write and exit
-	    if(std::chrono::steady_clock::now() - start > std::chrono::minutes(run_time)) { 
-           	 
-		using Ss = std::chrono::milliseconds;
-		std::cout << "PROC Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
-		std::cout << "PROC Client Read Time " << std::chrono::duration_cast<Ss>(total_read_time).count() << std::endl;
-		std::cout << "PROC Client Pub Time " << std::chrono::duration_cast<Ss>(total_pub_time).count() << std::endl;
-		//std::cout << "PROC Client Total Time " << std::chrono::duration_cast<Ss>(total_time).count() << std::endl;
-		std::cout << "PROC Client Num Samples " << num_samples << std::endl;
-	    //write_counter--;
-	    // Eventually will have a better shutdown signal for now just write every so often
-	    //if (write_counter==0) {
+	    write_counter--;
+	    // if we've hit our runtime minute duration we write and exit, else just write
+	    bool shutdown = (std::chrono::steady_clock::now() - start) >= std::chrono::minutes(run_time); 
+	    if ((write_counter==0) || shutdown) {
+           		 
+	        // Eventually will have a better shutdown signal for now just write every so often
 		std::chrono::time_point start_write_time = std::chrono::steady_clock::now();
 	        // write to file
                 std::string outfile = hostname +"_proc_data_soma.txt";
                 bool write_done;
                 soma_collector.soma_write(outfile, &write_done, soma::OVERWRITE);
+		std::chrono::duration write_time(std::chrono::stead_clock::now() - start_write_time);
+		total_write_time += write_time;
 		
-		std::cout << "PROC Client Writing to File: " << outfile << std::endl; 
-		std::chrono::duration write_time(std::chrono::steady_clock::now() - start_write_time);
-		std::cout << "PROC Client Write Time " << std::chrono::duration_cast<Ss>(write_time).count() << std::endl;
-		// reset the write counter
-	    	//write_counter = write_frequency;
-	    //}
-	    	// sleep so write can finish and then exit
-		std::this_thread::sleep_for(std::chrono::minutes(1));
-		break;
-	
-
+		if (shutdown) {
+		    using Ss = std::chrono::milliseconds;
+		    std::cout << "PROC Client Writing to File: " << outfile << std::endl; 
+		    std::cout << "PROC Client Write Time " << std::chrono::duration_cast<Ss>(total_write_time).count() << std::endl;
+		    std::cout << "PROC Client Initialization Time " << std::chrono::duration_cast<Ss>(initial_time).count()  << std::endl;
+		    std::cout << "PROC Client Read Time " << std::chrono::duration_cast<Ss>(total_read_time).count() << std::endl;
+		    std::cout << "PROC Client Pub Time " << std::chrono::duration_cast<Ss>(total_pub_time).count() << std::endl;
+		    //std::cout << "PROC Client Total Time " << std::chrono::duration_cast<Ss>(total_time).count() << std::endl;
+		    std::cout << "PROC Client Num Samples " << num_samples << std::endl;
+	    	    // sleep so write can finish and then exit
+	    	    std::this_thread::sleep_for(std::chrono::minutes(1));
+	    	    keep_running = false;
+		}
+		if (write_counter ==0) {
+		    // reset the write counter
+	    	    write_counter = write_frequency;
+		}
 	    }
 
-	    // Sleep for configured amount of time
+            // Sleep for configured amount of time
 	    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
-	} 
+	} // end while 
 
     } catch(const soma::Exception& ex) {
         std::cerr << ex.what() << std::endl;
