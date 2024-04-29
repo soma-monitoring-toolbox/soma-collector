@@ -78,6 +78,7 @@ void parse_command_line(int my_rank) {
     g_provider_id = 0;
     g_collector = read_nth_line(std::string(node_file_name), server_instance_id*num_server + my_server_offset);
     g_protocol = g_address.substr(0, g_address.find(":"));
+    std::cerr << "protocol " << g_protocol << std::endl; 
 }
 
 bool

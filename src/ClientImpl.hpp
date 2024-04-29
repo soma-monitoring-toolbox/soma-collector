@@ -27,6 +27,7 @@ class ClientImpl {
     // SOMA API Calls
     tl::remote_procedure m_soma_publish;
     tl::remote_procedure m_soma_publish_async;
+    tl::remote_procedure m_soma_analyze;
     tl::remote_procedure m_soma_write;
 
     ClientImpl(const tl::engine& engine)
@@ -36,6 +37,7 @@ class ClientImpl {
     , m_compute_sum(m_engine.define("soma_compute_sum"))
     , m_soma_publish(m_engine.define("soma_publish"))
     , m_soma_publish_async(m_engine.define("soma_publish_async"))
+    , m_soma_analyze(m_engine.define("soma_analyze"))
     , m_soma_write(m_engine.define("soma_write"))
     {}
 

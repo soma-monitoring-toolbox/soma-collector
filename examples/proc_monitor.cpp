@@ -92,6 +92,7 @@ init_mpi_threaded(int thread_level)
 
 int main() {
     //MPI_Init(&argc, &argv);
+/*
     int thread_level = MPI_THREAD_MULTIPLE;
     if (!init_mpi_threaded(thread_level)){
           printf("Unable to initialize MPI at thread level %d\n", thread_level);
@@ -103,6 +104,15 @@ int main() {
     MPI_Comm_split(MPI_COMM_WORLD, mon_comm_split_color, world_rank, &mon_comm);
     MPI_Comm_rank(mon_comm, &mon_rank);
     MPI_Comm_size(mon_comm, &mon_size);
+  */ 
+
+    // Get ENV VAR identifier	
+    int mon_rank = 0;
+    char * proc_idx = getenv("PROC_SOMA_IDX");
+    if (proc_idx != NULL) { 
+	mon_rank = std::atoi(proc_idx);
+    }
+    std::cout << "PROC: SOMA IDX is: " << mon_rank << std::endl;
     
     // set up timers
     std::chrono::time_point start_init_time = std::chrono::steady_clock::now();
@@ -139,6 +149,14 @@ int main() {
 	int write_counter = write_frequency;
 	std::cout << "PROC_WRITE_FREQUENCY: Write to file frequency is: " << write_counter  << std::endl;
         
+	int proc_analyze_var = 10;
+	char* a_freq = getenv("PROC_ANALYZE_FREQUENCY");
+	if (a_freq != NULL) {
+	    proc_analyze_var = std::atoi(a_freq);
+	}
+	int analyze = proc_analyze_var;
+	std::cout << "PROC_ANALYZE_FREQUENCY: Analysis frequency is: " << analyze << std::endl;
+
 	int sleep_time = 5000;
 	char * sleepy = getenv("PROC_SOMA_SLEEP_TIME");
 	if (sleepy != NULL) { 
@@ -234,6 +252,14 @@ int main() {
 	    total_pub_time +=  pub_time;
 	    num_samples += 1;
 	    
+	    // if we've hit an analysis point, trigger analysis
+	    analyze--;
+	    std::string a_file = "analysis_" + hostname + "_data_soma.txt"; 
+	    if (analyze == 0) {
+		auto resp = soma_collector.soma_analyze(a_file, soma::OVERWRITE);
+	    	analyze = proc_analyze_var; 
+	    }
+
 	    write_counter--;
 	    // if we've hit our runtime minute duration we write and exit, else just write
 	    bool shutdown = (std::chrono::steady_clock::now() - start) >= std::chrono::minutes(run_time); 
@@ -245,7 +271,7 @@ int main() {
                 std::string outfile = hostname +"_proc_data_soma.txt";
                 bool write_done;
                 soma_collector.soma_write(outfile, &write_done, soma::OVERWRITE);
-		std::chrono::duration write_time(std::chrono::stead_clock::now() - start_write_time);
+		std::chrono::duration write_time(std::chrono::steady_clock::now() - start_write_time);
 		total_write_time += write_time;
 		
 		if (shutdown) {
@@ -285,12 +311,13 @@ int main() {
         bool write_done;
         soma_collector.soma_write(outfile, &write_done);
     }*/
-
+    /*
     if (mon_comm != MPI_COMM_WORLD) {
         MPI_Comm_free(&mon_comm);
         mon_comm = MPI_COMM_NULL;
     }
     MPI_Finalize();
+    */
     return 0;
 }
 

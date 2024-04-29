@@ -60,6 +60,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     tl::remote_procedure m_say_hello;
     tl::remote_procedure m_soma_publish;
     tl::remote_procedure m_soma_publish_async;
+    tl::remote_procedure m_soma_analyze;
     tl::remote_procedure m_soma_write;
     tl::remote_procedure m_compute_sum;
     // Backends
@@ -77,6 +78,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
     , m_say_hello(define("soma_say_hello", &ProviderImpl::sayHello, pool))
     , m_soma_publish(define("soma_publish", &ProviderImpl::soma_publish, pool))
     , m_soma_publish_async(define("soma_publish_async", &ProviderImpl::soma_publish_async, pool))
+    , m_soma_analyze(define("soma_analyze", &ProviderImpl::soma_analyze, pool))
     , m_soma_write(define("soma_write", &ProviderImpl::soma_write, pool))
     , m_compute_sum(define("soma_compute_sum",  &ProviderImpl::computeSum, pool))
     {
@@ -93,6 +95,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         m_say_hello.deregister();
         m_soma_publish.deregister();
         m_soma_publish_async.deregister();
+        m_soma_analyze.deregister();
         m_soma_write.deregister();
     	m_compute_sum.deregister();
         spdlog::trace("[provider:{}]    => done!", id());
@@ -335,6 +338,24 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         spdlog::trace("[provider:{}] Successfully executed soma_publish on collector {}", id(), collector_id.to_string());
     }
 
+    // Soma Analyze API call
+    void soma_analyze(const tl::request& req,
+		    const UUID& collector_id,
+		    std::string filename,
+		    int soma_op) {
+        spdlog::trace("[provider:{}] Received soma_analyze for collector {}", id(), collector_id.to_string());
+	RequestResult<bool> result;
+	FIND_COLLECTOR(collector);
+	auto engine = get_engine();
+	auto pool = engine.get_handler_pool();
+	result.value() = true;
+      	req.respond(result);
+	std::cout << "In ProvderImpl hpp soma_analyze" << std::endl; 
+	collector->soma_analyze(filename, soma_op, pool.total_size(), m_comm);
+        spdlog::trace("[provider:{}] Successfully executed soma_analyze on collector {}", id(), collector_id.to_string());
+
+    }
+
     // Soma Write API call
     void soma_write(const tl::request& req,
 		    const UUID& collector_id,
@@ -348,6 +369,7 @@ class ProviderImpl : public tl::provider<ProviderImpl> {
         spdlog::trace("[provider:{}] Successfully executed soma_write on collector {}", id(), collector_id.to_string());
 
     }
+
     void computeSum(const tl::request& req,
                     const UUID& collector_id,
                     int32_t x, int32_t y) {

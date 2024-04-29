@@ -20,7 +20,10 @@ using json = nlohmann::json;
 class DummyCollector : public soma::Backend {
    
     json m_config;
-    std::queue <conduit::Node, std::deque<conduit::Node>> node_q;
+    //std::vector <conduit::Node, std::vector<conduit::Node>> node_q;
+    //std::queue <conduit::Node, std::deque<conduit::Node>> node_q;
+    std::deque <conduit::Node> node_q;
+    int last_index = 0;
 
     public:
 
@@ -71,7 +74,12 @@ class DummyCollector : public soma::Backend {
     soma::RequestResult<bool> soma_publish_async(std::string node, size_t pool_size, MPI_Comm comm) override;
 
     /**
-     * @brief Publishes a conduit node.
+     * @brief Performs some analysis and writes out results.
+     */
+    soma::RequestResult<bool> soma_analyze(std::string filename, int soma_op, size_t pool_size, MPI_Comm comm) override;
+    
+    /**
+     * @brief Writes performance data to a file.
      */
     soma::RequestResult<bool> soma_write(std::string filename, int soma_op) override;
     

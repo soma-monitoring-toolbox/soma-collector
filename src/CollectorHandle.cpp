@@ -152,6 +152,16 @@ void CollectorHandle::soma_update_namespace(NamespaceHandle *ns_handle, std::str
     }
 }
 
+// Soma analyze API call - writes some data analysis to file
+thallium::async_response CollectorHandle::soma_analyze(std::string filename, int soma_op) const {
+    if (not self) throw Exception("Invalid soma::CollectorHandle object");
+    auto& rpc = self->m_client->m_soma_analyze;
+    auto& ph = self->m_ph;
+    auto& collector_id = self->m_collector_id;
+    auto response = rpc.on(ph).async(collector_id, filename, soma_op);
+    return response;
+}
+
 // Soma write API call - writes data to file
 void CollectorHandle::soma_write(std::string filename, bool* complete, int soma_op) const {
     if (not self) throw Exception("Invalid soma::CollectorHandle object");

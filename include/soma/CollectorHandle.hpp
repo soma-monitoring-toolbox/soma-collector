@@ -162,6 +162,14 @@ class CollectorHandle {
      * @param[in] op operation type (OVERWRITE, APPEND)
      */
     void soma_update_namespace(NamespaceHandle *ns_handle, std::string uid, std::string key, const std::vector<double>& values, int soma_op) const;
+    
+    /**
+     * @brief Requests the data gets analyzed and written to file 
+     *
+     * @param[in] string filename
+     * @param[in] soma_op operation type (OVERWRITE, APPEND)
+     */
+     thallium::async_response soma_analyze(std::string filename, int soma_op) const;
 
     /**
      * @brief Requests the data gets written to file 

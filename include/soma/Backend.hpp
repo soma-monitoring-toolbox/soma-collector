@@ -86,6 +86,11 @@ class Backend {
     /**
      * @brief Writes data to file.
      */
+    virtual soma::RequestResult<bool> soma_analyze(std::string filename, int soma_op, size_t pool_size, MPI_Comm comm) = 0;
+    
+    /**
+     * @brief Writes data to file.
+     */
     virtual soma::RequestResult<bool> soma_write(std::string filename, int soma_op) = 0;
 
     /**
