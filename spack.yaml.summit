@@ -1,0 +1,155 @@
+spack:
+  packages:
+    binutils:
+      externals:
+      - spec: binutils@2.30.113
+        prefix: /usr
+      - spec: binutils@2.30.73
+        prefix: /usr
+    coreutils:
+      externals:
+      - spec: coreutils@8.30
+        prefix: /usr
+    diffutils:
+      externals:
+      - spec: diffutils@3.6
+        prefix: /usr
+    findutils:
+      externals:
+      - spec: findutils@4.6.0
+        prefix: /usr
+    gawk:
+      externals:
+      - spec: gawk@4.2.1
+        prefix: /usr
+    openssh:
+      externals:
+      - spec: openssh@8.0p1
+        prefix: /usr
+    openssl:
+      externals:
+      - spec: openssl@1.1.1k
+        prefix: /usr
+      - spec: openssl@1.1.1c
+        prefix: /usr
+      buildable: false
+    tar:
+      externals:
+      - spec: tar@1.30
+        prefix: /usr
+    autoconf:
+      externals:
+      - spec: autoconf@2.69
+        prefix: /usr
+    automake:
+      externals:
+      - spec: automake@1.16.1
+        prefix: /usr
+    bison:
+      externals:
+      - spec: bison@3.0.4
+        prefix: /usr
+    cmake:
+      externals:
+      - spec: cmake@3.27.7
+        prefix: /sw/summit/spack-envs/summit-plus/opt/gcc-12.1.0/cmake-3.27.7-ix2pv3aid3zgmkoiudarj455q3kjde3l
+    curl:
+      externals:
+      - spec: curl@7.61.1+gssapi+ldap+nghttp2
+        prefix: /usr
+    cvs:
+      externals:
+      - spec: cvs@1.11.23
+        prefix: /usr
+    flex:
+      externals:
+      - spec: flex@2.6.1+lex
+        prefix: /usr
+    git:
+      externals:
+      - spec: git@2.31.1~tcltk
+        prefix: /usr
+      - spec: git@2.18.4~tcltk
+        prefix: /usr
+    gmake:
+      externals:
+      - spec: gmake@4.2.1
+        prefix: /usr
+    groff:
+      externals:
+      - spec: groff@1.22.3
+        prefix: /usr
+    libtool:
+      externals:
+      - spec: libtool@2.4.6
+        prefix: /usr
+    m4:
+      externals:
+      - spec: m4@1.4.18
+        prefix: /usr
+    pkgconf:
+      externals:
+      - spec: pkgconf@1.4.2
+        prefix: /usr
+    libfabric:
+      externals:
+      - spec: libfabric@1.14.1-sysrdma
+        modules: [libfabric]
+      buildable: false
+    texinfo:
+      externals:
+      - spec: texinfo@6.5
+        prefix: /usr
+    mpi:
+      externals:
+      - spec: spectrum-mpi@10.4.0.6-20230210
+        modules: [spectrum-mpi]
+      buildable: false
+    openmpi:
+      buildable: false
+  specs:
+  - uuid
+  - mochi-thallium ^libfabric fabrics=verbs,rxm
+  - mochi-abt-io
+  - nlohmann-json
+  - spdlog
+  - cppunit
+  - tclap
+  - conduit@develop ~hdf5
+  - mochi-bedrock
+  concretizer:
+    unify: true
+    reuse: false
+  modules:
+    prefix_inspections:
+      lib: [LD_LIBRARY_PATH]
+      lib64: [LD_LIBRARY_PATH]
+  repos:
+  - ./mochi-spack-packages
+  compilers:
+  - compiler:
+      spec: gcc@=12.1.0
+      paths:
+        cc: /sw/summit/gcc/12.1.0-0/bin/gcc
+        cxx: /sw/summit/gcc/12.1.0-0/bin/g++
+        f77: /sw/summit/gcc/12.1.0-0/bin/gfortran
+        fc: /sw/summit/gcc/12.1.0-0/bin/gfortran
+      flags: {}
+      operating_system: rhel8
+      target: ppc64le
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  - compiler:
+      spec: gcc@=8.5.0
+      paths:
+        cc: /usr/bin/gcc
+        cxx: /usr/bin/g++
+        f77: /usr/bin/gfortran
+        fc: /usr/bin/gfortran
+      flags: {}
+      operating_system: rhel8
+      target: ppc64le
+      modules: []
+      environment: {}
+      extra_rpaths: []
