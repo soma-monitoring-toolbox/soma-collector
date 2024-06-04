@@ -28,11 +28,50 @@ spack env activate .
 spack install
 ```
 
-Compile SOMA: 
+Compile soma-collector: 
 ```
 mkdir build && cd build
 export SOMA_INSTALL_DIR=<path/to/SOMA>/install
 cmake -DENABLE_EXAMPLES=ON -DCMAKE_INSTALL_PREFIX=$SOMA_INSTALL_DIR ..
 make install -j
+```
+
+## Install TAU with SOMA plugins enabled
+Load the same modules:
+```
+module load gcc openmpi
+```
+
+Clone the TAU repository:
+```
+git clone https://github.com/dyokelson/tau2.git
+```
+
+Set up Spack and load dependencies:
+```
+. </path/to/spack/>share/spack/setup-env.sh
+spack env activate <path/to/>soma-collector
+spack load mochi-thallium cereal mochi-margo mercury argobots json-c uuid conduit
+```
+
+Export paths for TAU:
+```
+export PKG_CONFIG_PATH=</path/to/>soma-collector/install/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH=</path/to/>soma-collector/install/lib
+```
+
+Find the Conduit install:
+* In your spack directory /opt/spack/<arch>/<compiler> you should find a conduit install and can copy that absolute path
+
+Configure TAU:
+```
+cd tau2
+Best MAHTI: ./configure -mpi -bfd=download -mochi -useropt=#-g#-O2#-I</path/to/>soma-collector/install/include#-I</path/to/conduit/>include#-std=c++17
+```
+
+Build TAU:
+```
+export PATH=</path/to/>tau2/<arch>/bin:$PATH
+make -j install
 ```
 
