@@ -66,7 +66,7 @@ Find the Conduit install:
 Configure TAU:
 ```
 cd tau2
-Best MAHTI: ./configure -mpi -bfd=download -mochi -useropt=#-g#-O2#-I</path/to/>soma-collector/install/include#-I</path/to/conduit/>include#-std=c++17
+./configure -mpi -bfd=download -mochi -useropt=#-g#-O2#-I</path/to/>soma-collector/install/include#-I</path/to/conduit/>include#-std=c++17
 ```
 
 Build TAU:
