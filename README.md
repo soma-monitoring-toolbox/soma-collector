@@ -57,7 +57,7 @@ spack load mochi-thallium cereal mochi-margo mercury argobots json-c uuid condui
 Export paths for TAU:
 ```
 export PKG_CONFIG_PATH=</path/to/>soma-collector/install/lib/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH=</path/to/>soma-collector/install/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:</path/to/>soma-collector/install/lib
 ```
 
 Find the Conduit install:
